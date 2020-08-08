@@ -5,8 +5,7 @@ from eventz.entity import Entity
 
 class Aggregate(Entity):
     """
-    Currently a placeholder class where logic specific to root aggregate entities
-    may be placed in the future.
+    Top-level entity that other services interact with from outside the domain.
     """
     def __init__(self, uuid: Optional[str] = None):
         super().__init__(uuid)

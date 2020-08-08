@@ -1,7 +1,8 @@
 from __future__ import annotations
 
-from typing import Protocol, TypeVar, Callable, Tuple, Any, Dict
+from typing import Protocol, TypeVar, Callable, Tuple, Any, Dict, Sequence
 
+from eventz.aggregate import Aggregate
 from eventz.messages import Event, Command
 
 T = TypeVar("T")
@@ -9,6 +10,14 @@ T = TypeVar("T")
 
 class ProcessesCommandsProtocol(Protocol):
     def process(self, command: Command) -> Tuple[Event, ...]:
+        ...
+
+
+class AggregateBuilderProtocol(Protocol[T]):
+    def create(self, events: Sequence[Event]) -> T:
+        ...
+
+    def update(self, aggregate: Aggregate, events: Sequence[Event]) -> T:
         ...
 
 
