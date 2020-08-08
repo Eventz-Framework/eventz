@@ -13,6 +13,17 @@ class ProcessesCommandsProtocol(Protocol):
         ...
 
 
+class RepositoryProtocol(Protocol):
+    def create(self, **kwargs: Dict) -> Aggregate:
+        ...
+
+    def read(self, aggregate_id: str) -> Aggregate:
+        ...
+
+    def persist(self, aggregate_id: str, events: Sequence[Event]):
+        ...
+
+
 class AggregateBuilderProtocol(Protocol[T]):
     def create(self, events: Sequence[Event]) -> T:
         ...
