@@ -1,12 +1,12 @@
-from __future__ import annotations
-
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, Generic, TypeVar
 from uuid import uuid4
 
 from eventz.immutable import Immutable
 
+T = TypeVar("T")
 
-class Entity(metaclass=Immutable):
+
+class Entity(Generic[T], metaclass=Immutable):
     transform_underscores: bool = False
 
     @staticmethod
@@ -32,12 +32,12 @@ class Entity(metaclass=Immutable):
         attrs_string = " ".join([f"{k}={v}" for k, v in attrs.items()])
         return f"{class_name}({attrs_string})"
 
-    def _mutate(self, name, value) -> Entity:
+    def _mutate(self, name, value) -> T:
         return Immutable.__mutate__(
             self, name, value, self.transform_underscores
         )
 
-    def _mutate_all(self, updates: Dict[str, Any]) -> Entity:
+    def _mutate_all(self, updates: Dict[str, Any]) -> T:
         entity = self
         for name, value in updates.items():
             entity = Immutable.__mutate__(
