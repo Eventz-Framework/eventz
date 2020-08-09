@@ -54,5 +54,5 @@ def _setattr(self, attr, value):
     object.__setattr__(self, attr, value)
 
 
-def _delattr(self, attr):
+def _delattr(self, attr):  # pragma: no cover
     raise AttributeError("An attribute cannot be deleted on an immutable object.")
