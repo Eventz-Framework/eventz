@@ -54,7 +54,7 @@ def test_new_sequence_of_events_can_be_persisted(
     store.persist(parent_id1, [parent_created_event, child_chosen_event])
     with open(f"{storage_path}/{parent_id1}.json", "r+") as json_file:
         persisted_json = json.load(json_file)
-        assert persisted_json == json.dumps(json_events)
+        assert persisted_json == json.dumps(json_events, sort_keys=True)
 
 
 @pytest.fixture

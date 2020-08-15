@@ -17,12 +17,15 @@ class Marshall(MarshallProtocol):
     def register_codec(self, fcn: str, codec: MarshallCodecProtocol):
         self._codecs[fcn] = codec
 
-    def deregister_handler(self, fcn: str):
+    def deregister_codec(self, fcn: str):
         del self._codecs[fcn]
+
+    def has_codec(self, fcn: str):
+        return fcn in self._codecs
 
     def to_json(self, data: Any) -> str:
         data = self._serialise_data(data)
-        return json.dumps(data)
+        return json.dumps(data, sort_keys=True)
 
     def from_json(self, json_string: str) -> Any:
         data = json.loads(json_string)
@@ -87,11 +90,7 @@ class Marshall(MarshallProtocol):
         fully_qualified_name = data["__fcn__"]
         # @TODO add "allowed_namespaces" list to class and do a check here to protect against code injection
         _class = self._get_class_from_fcn(fully_qualified_name)
-        try:
-            return _class(**kwargs)
-        except TypeError as e:
-            err = f"Error instantiating {fully_qualified_name} was: {e}"
-            raise TypeError(err)
+        return _class(**kwargs)
 
     def _codec_dict_to_object(self, data: Dict) -> Any:
         fcn = data["__codec__"]
@@ -101,7 +100,6 @@ class Marshall(MarshallProtocol):
         for codec in self._codecs.values():
             if codec.handles(obj):
                 return codec.serialise(obj)
-        raise NoCodecError()
 
     def _dict_to_enum(self, data: Dict) -> Enum:
         fully_qualified_name = data["__fcn__"]
@@ -134,10 +132,7 @@ class Marshall(MarshallProtocol):
         return isinstance(data, dict) and "__codec__" in data
 
     def _get_fcn(self, obj):
-        module = obj.__class__.__module__
-        if module is None or module == str.__class__.__module__:
-            return obj.__class__.__name__
-        return module + "." + obj.__class__.__name__
+        return obj.__class__.__module__ + "." + obj.__class__.__name__
 
     def _get_class_from_fcn(self, fcn: str) -> type:
         module_name, class_name = fcn.rsplit(".", 1)
