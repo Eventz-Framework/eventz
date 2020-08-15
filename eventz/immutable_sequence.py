@@ -20,7 +20,7 @@ class ImmutableSequence(Generic[T]):
     def __repr__(self) -> str:
         class_name = self.__class__.__name__
         attrs = {k: getattr(self, k) for k in vars(self)}
-        if "__immutable__" in attrs:
+        if "__immutable__" in attrs:  # pragma: no cover
             del attrs["__immutable__"]
         attrs_string = " ".join([f"{k}={v}" for k, v in attrs.items()])
         return f"{class_name}({attrs_string})"
@@ -34,7 +34,3 @@ class ImmutableSequence(Generic[T]):
 
     def __getitem__(self, key) -> T:
         return self._items[key]
-
-    @property
-    def positions(self):
-        return self._items
