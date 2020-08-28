@@ -20,34 +20,46 @@ class Child(Model):
 
 
 def test_that_value_objects_created_with_the_same_attributes_are_not_the_same():
-    model1 = Model.create(property_one="A", property_two=1)
-    model2 = Model.create(property_one="A", property_two=1)
-    model3 = Model.create(property_one="B", property_two=2)
+    model1 = Model(property_one="A", property_two=1)
+    model2 = Model(property_one="A", property_two=1)
+    model3 = Model(property_one="B", property_two=2)
     assert model1 is not model2
     assert model2 is not model3
 
 
 def test_that_value_objects_created_with_the_same_attributes_are_equal():
-    model1 = Model.create(property_one="A", property_two=1)
-    model2 = Model.create(property_one="A", property_two=1)
-    model3 = Model.create(property_one="B", property_two=2)
+    model1 = Model(property_one="A", property_two=1)
+    model2 = Model(property_one="A", property_two=1)
+    model3 = Model(property_one="B", property_two=2)
     assert model1 == model2
     assert model2 != model3
 
 
 def test_that_inherited_value_objects_created_with_the_same_attributes_are_equal():
-    model1 = Model.create(property_one="A", property_two=1)
-    model2 = Model.create(property_one="B", property_two=2)
-    child = Child.create(property_one="A", property_two=1)
+    model1 = Model(property_one="A", property_two=1)
+    model2 = Model(property_one="B", property_two=2)
+    child = Child(property_one="A", property_two=1)
     assert model1 == child
     assert model2 != child
 
 
+def test_equality_checks_against_other_types():
+    model1 = Model(property_one="A", property_two=1)
+    assert (model1 == 1) is False
+    assert model1 != 1
+
+
+def test_repr():
+    model1 = Model(property_one="A", property_two=1)
+    assert repr(model1) == "Model(property_one=A property_two=1)"
+
+
+def test_mutation():
+    model1 = Model(property_one="A", property_two=1)
+    assert model1.increment() == Model(property_one="A", property_two=2)
+
+
 def test_that_value_objects_are_immutable():
-    model = Model.create(property_one="A", property_two=1)
+    model = Model(property_one="A", property_two=1)
     with pytest.raises(AttributeError):
         model.property_one = "B"
-
-
-def test_that_value_objects_serialize_to_and_from_json():
-    pass

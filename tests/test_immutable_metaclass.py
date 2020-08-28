@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from eventz.event_bus import EventBus
 from eventz.immutable import Immutable
 from eventz.messages import Event
 
@@ -20,10 +19,6 @@ class Model(metaclass=Immutable):
 
     def increment(self) -> Model:
         return Immutable.__mutate__(self, "property_two", self.property_two + 1)
-
-    def trigger_example_event(self):
-        event = ExampleEvent(property_one=self.property_one)
-        EventBus.send(event)
 
 
 class PrivateModel(metaclass=Immutable):

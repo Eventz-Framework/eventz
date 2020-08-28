@@ -1,18 +1,26 @@
-from typing import Sequence, Tuple, Optional
+from typing import Dict
 
 from eventz.event_store.event_store_protocol import EventStoreProtocol
-from eventz.messages import Event
+from eventz.protocols import Events
 
 
 class DummyStorage(EventStoreProtocol):
-    def __init__(self, fetched_events: Sequence[Event] = None):
-        self._fetched_events: Sequence[Event] = fetched_events or tuple()
-        self.persisted_events: Optional[Tuple[Event, ...]] = None
-        self.fetch_called: int = 0
+    def __init__(self):
+        self._persisted_events: Dict[str, Events] = {}
+        self._fetch_called: int = 0
 
-    def fetch(self, aggregate_id: str) -> Tuple[Event, ...]:
-        self.fetch_called += 1
-        return tuple(self._fetched_events)
+    def fetch(self, aggregate_id: str) -> Events:
+        self._fetch_called += 1
+        return self._persisted_events[aggregate_id]
 
-    def persist(self, aggregate_id: str, events: Sequence[Event]):
-        self.persisted_events = tuple(events)
+    def persist(self, aggregate_id: str, events: Events):
+        if aggregate_id in self._persisted_events:
+            self._persisted_events[aggregate_id] = (
+                self._persisted_events[aggregate_id] + events
+            )
+        else:
+            self._persisted_events[aggregate_id] = events
+
+    @property
+    def fetch_called(self) -> int:
+        return self._fetch_called

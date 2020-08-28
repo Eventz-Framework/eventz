@@ -30,14 +30,3 @@ class ValueObject(Generic[T], metaclass=Immutable):
         return Immutable.__mutate__(
             self, name, value, self.transform_underscores
         )
-
-    @classmethod
-    def create(cls, **kwargs) -> T:
-        """
-        Since due to immutable mutations and event replays __init__
-        is called with great frequency, the actual creation of the
-        object from a domain event PoV should always be done via classmethod
-        .create(). This is where we emit any "created" events etc,
-        guaranteeing we only ever get one.
-        """
-        return cls(**kwargs)

@@ -1,48 +1,49 @@
 from __future__ import annotations
 
-from typing import Protocol, TypeVar, Callable, Tuple, Any, Dict, Sequence
+from typing import Protocol, TypeVar, Callable, Tuple, Any, Dict
 
 from eventz.aggregate import Aggregate
 from eventz.messages import Event, Command
 
 T = TypeVar("T")
+Events = Tuple[Event, ...]
 
 
-class ProcessesCommandsProtocol(Protocol):
-    def process(self, command: Command) -> Tuple[Event, ...]:
+class ProcessesCommandsProtocol(Protocol):  # pragma: no cover
+    def process(self, command: Command) -> Events:
         ...
 
 
-class RepositoryProtocol(Protocol):
-    def create(self, **kwargs: Dict) -> Aggregate:
+class RepositoryProtocol(Protocol[T]):  # pragma: no cover
+    def create(self, **kwargs) -> Events:
         ...
 
-    def read(self, aggregate_id: str) -> Aggregate:
+    def read(self, aggregate_id: str) -> T:
         ...
 
-    def persist(self, aggregate_id: str, events: Sequence[Event]):
-        ...
-
-
-class AggregateBuilderProtocol(Protocol[T]):
-    def create(self, events: Sequence[Event]) -> T:
-        ...
-
-    def update(self, aggregate: Aggregate, events: Sequence[Event]) -> T:
+    def persist(self, aggregate_id: str, events: Events) -> None:
         ...
 
 
-class AppliesEventsProtocol(Protocol):
+class AggregateBuilderProtocol(Protocol[T]):  # pragma: no cover
+    def create(self, events: Events) -> T:
+        ...
+
+    def update(self, aggregate: T, events: Events) -> T:
+        ...
+
+
+class AppliesEventsProtocol(Protocol):  # pragma: no cover
     def apply(self, event: Event) -> None:
         ...
 
 
-class EmitsEventsProtocol(Protocol):
+class EmitsEventsProtocol(Protocol):  # pragma: no cover
     def send(self, event: Event):
         ...
 
 
-class RegistersEventHandlersProtocol(Protocol):
+class RegistersEventHandlersProtocol(Protocol):  # pragma: no cover
     def register_handler(self, name: str, handler: Callable):
         ...
 
@@ -56,11 +57,15 @@ class RegistersEventHandlersProtocol(Protocol):
         ...
 
 
-class EventBusProtocol(EmitsEventsProtocol, RegistersEventHandlersProtocol):
-    pass
+class EventSubscriptionProtocol(Protocol):  # pragma: no cover
+    def get(self) -> Event:
+        ...
+
+    def all(self) -> Events:
+        ...
 
 
-class MarshallProtocol(Protocol):
+class MarshallProtocol(Protocol):  # pragma: no cover
     def to_json(self, obj: Any) -> str:
         ...
 
@@ -74,7 +79,7 @@ class MarshallProtocol(Protocol):
         ...
 
 
-class MarshallCodecProtocol(Protocol):
+class MarshallCodecProtocol(Protocol):  # pragma: no cover
     def serialise(self, obj: Any) -> Dict:
         ...
 
@@ -85,6 +90,6 @@ class MarshallCodecProtocol(Protocol):
         ...
 
 
-class JsonSerlialisable(Protocol):
+class JsonSerlialisable(Protocol):  # pragma: no cover
     def get_json_data(self) -> Dict:
         ...
