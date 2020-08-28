@@ -1,0 +1,6 @@
+immutables==0.*,>=0.14.0
+python-dateutil==2.*,>=2.8.1
+
+[dev]
+pytest==5.*,>=5.2.0
+pytest-cov==2.*,>=2.10.0
