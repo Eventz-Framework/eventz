@@ -1,8 +1,7 @@
 from __future__ import annotations
 
-from typing import Protocol, TypeVar, Callable, Tuple, Any, Dict
+from typing import Protocol, TypeVar, Tuple, Any, Dict
 
-from eventz.aggregate import Aggregate
 from eventz.messages import Event, Command
 
 T = TypeVar("T")
@@ -33,38 +32,6 @@ class AggregateBuilderProtocol(Protocol[T]):  # pragma: no cover
         ...
 
 
-class AppliesEventsProtocol(Protocol):  # pragma: no cover
-    def apply(self, event: Event) -> None:
-        ...
-
-
-class EmitsEventsProtocol(Protocol):  # pragma: no cover
-    def send(self, event: Event):
-        ...
-
-
-class RegistersEventHandlersProtocol(Protocol):  # pragma: no cover
-    def register_handler(self, name: str, handler: Callable):
-        ...
-
-    def deregister_handler(self, name: str):
-        ...
-
-    def list_handler_names(self) -> Tuple[str, ...]:
-        ...
-
-    def clear_handlers(self) -> None:
-        ...
-
-
-class EventSubscriptionProtocol(Protocol):  # pragma: no cover
-    def get(self) -> Event:
-        ...
-
-    def all(self) -> Events:
-        ...
-
-
 class MarshallProtocol(Protocol):  # pragma: no cover
     def to_json(self, obj: Any) -> str:
         ...
@@ -92,4 +59,12 @@ class MarshallCodecProtocol(Protocol):  # pragma: no cover
 
 class JsonSerlialisable(Protocol):  # pragma: no cover
     def get_json_data(self) -> Dict:
+        ...
+
+
+class EventStoreProtocol(Protocol):  # pragma: no cover
+    def fetch(self, aggregate_id: str) -> Events:
+        ...
+
+    def persist(self, aggregate_id: str, events: Events) -> None:
         ...

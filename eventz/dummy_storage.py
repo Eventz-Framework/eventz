@@ -1,7 +1,6 @@
 from typing import Dict
 
-from eventz.event_store.event_store_protocol import EventStoreProtocol
-from eventz.protocols import Events
+from eventz.protocols import Events, EventStoreProtocol
 
 
 class DummyStorage(EventStoreProtocol):

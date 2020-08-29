@@ -6,7 +6,7 @@ from pathlib import Path
 import pytest
 
 from eventz.entity import Entity
-from eventz.event_store.event_store_json_file import EventStoreJsonFile
+from eventz.event_store_json_file import EventStoreJsonFile
 from eventz.marshall import Marshall, DatetimeCodec
 from tests.example.child import Child
 from tests.example.children import Children

@@ -3,10 +3,9 @@ import os
 import shutil
 from typing import Sequence, Tuple
 
-from eventz.event_store.event_store import EventStore
-from eventz.event_store.event_store_protocol import EventStoreProtocol
+from eventz.event_store import EventStore
 from eventz.messages import Event
-from eventz.protocols import MarshallProtocol
+from eventz.protocols import MarshallProtocol, EventStoreProtocol
 
 
 class EventStoreJsonFile(EventStore, EventStoreProtocol):

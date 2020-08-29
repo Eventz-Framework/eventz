@@ -1,8 +1,12 @@
 from typing import TypeVar
 
 from eventz.aggregate import Aggregate
-from eventz.event_store.event_store_protocol import EventStoreProtocol
-from eventz.protocols import RepositoryProtocol, AggregateBuilderProtocol, Events
+from eventz.protocols import (
+    RepositoryProtocol,
+    AggregateBuilderProtocol,
+    Events,
+    EventStoreProtocol,
+)
 
 T = TypeVar("T")
 

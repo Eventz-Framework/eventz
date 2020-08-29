@@ -1,10 +1,7 @@
-from typing import Tuple
-
 from eventz.aggregate import Aggregate
-from eventz.messages import Event
+from eventz.dummy_storage import DummyStorage
 from eventz.repository import Repository
 from tests.example.commands import CreateExample, UpdateExample
-from tests.example.dummy_storage import DummyStorage
 from tests.example.example_aggregate import (
     ExampleCreated,
     ExampleAggregate,
