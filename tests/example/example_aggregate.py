@@ -7,7 +7,7 @@ from eventz.messages import Event
 
 class ExampleAggregate(Aggregate):
     def __init__(
-        self, param_one: int, param_two: str, uuid: Optional[str] = None,
+        self, uuid: str, param_one: int, param_two: str,
     ):
         super().__init__(uuid)
         self.param_one: int = param_one
@@ -16,14 +16,10 @@ class ExampleAggregate(Aggregate):
     @classmethod
     def create(cls, uuid: str, param_one: int, param_two: str,) -> Tuple[Event, ...]:
         return (
-            ExampleCreated(
-                example_id=uuid, param_one=param_one, param_two=param_two
-            ),
+            ExampleCreated(example_id=uuid, param_one=param_one, param_two=param_two),
         )
 
-    def update(
-        self, param_one: int, param_two: str
-    ) -> Tuple[Event, ...]:
+    def update(self, param_one: int, param_two: str) -> Tuple[Event, ...]:
         return (
             ExampleUpdated(
                 example_id=self.uuid, param_one=param_one, param_two=param_two
@@ -43,10 +39,10 @@ class ExampleCreated(ExampleEvent):
         example_id: str,
         param_one: int,
         param_two: str,
-        uuid: str = None,
+        msgid: str = None,
         timestamp: datetime = None,
     ):
-        super().__init__(uuid, timestamp)
+        super().__init__(msgid, timestamp)
         self.example_id: str = example_id
         self.param_one: int = param_one
         self.param_two: str = param_two
@@ -60,10 +56,10 @@ class ExampleUpdated(ExampleEvent):
         example_id: str,
         param_one: int,
         param_two: str,
-        uuid: str = None,
+        msgid: str = None,
         timestamp: datetime = None,
     ):
-        super().__init__(uuid, timestamp)
+        super().__init__(msgid, timestamp)
         self.example_id: str = example_id
         self.param_one: int = param_one
         self.param_two: str = param_two

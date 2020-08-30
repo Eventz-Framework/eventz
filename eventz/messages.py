@@ -5,7 +5,7 @@ from eventz.value_object import ValueObject
 
 
 class Message(ValueObject):
-    def __init__(self, uuid: str = None, timestamp: datetime = None):
+    def __init__(self, msgid: str = None, timestamp: datetime = None):
         try:
             getattr(self, "version")
         except AttributeError:
@@ -14,7 +14,7 @@ class Message(ValueObject):
                 "without a 'version' attribute set on the class."
             )
             raise TypeError(err)
-        self.uuid: str = uuid or str(uuid4())
+        self.msgid: str = msgid or str(uuid4())
         self.timestamp: datetime = timestamp or datetime.utcnow()
 
 

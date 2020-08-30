@@ -7,12 +7,7 @@ def test_aggregate_can_generate_a_uuid():
     assert isinstance(uuid, str)
 
 
-def test_aggregate_can_be_created_with_a_uuid():
+def test_aggregate_creation():
     uuid = Aggregate.make_id()
-    aggregate = ExampleAggregate(param_one=1, param_two="abc", uuid=uuid)
-    assert isinstance(aggregate.uuid, str)
-
-
-def test_aggregate_can_be_created_without_a_uuid():
-    aggregate = ExampleAggregate(param_one=1, param_two="abc")
-    assert isinstance(aggregate.uuid, str)
+    aggregate = ExampleAggregate(uuid=uuid, param_one=1, param_two="abc")
+    assert aggregate.uuid == uuid

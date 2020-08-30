@@ -13,8 +13,8 @@ from tests.example.children import Children
 from tests.example.parent import ParentCreated, ChildChosen
 
 parent_id1 = Entity.make_id()
-message_uuid1 = "11111111-1111-1111-1111-111111111111"
-message_uuid2 = "22222222-2222-2222-2222-222222222222"
+msgid1 = "11111111-1111-1111-1111-111111111111"
+msgid2 = "22222222-2222-2222-2222-222222222222"
 dt_iso1 = "2020-01-02T03:04:05.123456"
 dt_iso2 = "2020-01-02T03:04:06.123456"
 dt1 = datetime(2020, 1, 2, 3, 4, 5, 123456)
@@ -69,7 +69,7 @@ def parent_created_event():
                 Child(name="Child Three"),
             ],
         ),
-        uuid=message_uuid1,
+        msgid=msgid1,
         timestamp=dt1,
     )
 
@@ -79,7 +79,7 @@ def child_chosen_event():
     return ChildChosen(
         parent_id=parent_id1,
         child=Child(name="Child Three"),
-        uuid=message_uuid2,
+        msgid=msgid2,
         timestamp=dt2,
     )
 
@@ -90,7 +90,7 @@ def json_events():
         {
             "__fcn__": "tests.example.parent.ParentCreated",
             "__version__": 1,
-            "uuid": message_uuid1,
+            "msgid": msgid1,
             "timestamp": {
                 "__codec__": "eventz.marshall.DatetimeCodec",
                 "params": {"timestamp": dt_iso1},
@@ -109,7 +109,7 @@ def json_events():
         {
             "__fcn__": "tests.example.parent.ChildChosen",
             "__version__": 1,
-            "uuid": message_uuid2,
+            "msgid": msgid2,
             "timestamp": {
                 "__codec__": "eventz.marshall.DatetimeCodec",
                 "params": {"timestamp": dt_iso2},
