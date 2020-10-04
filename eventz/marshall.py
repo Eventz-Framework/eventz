@@ -24,32 +24,32 @@ class Marshall(MarshallProtocol):
         return fcn in self._codecs
 
     def to_json(self, data: Any) -> str:
-        data = self._serialise_data(data)
+        data = self.serialise_data(data)
         return json.dumps(data, sort_keys=True)
 
     def from_json(self, json_string: str) -> Any:
         data = json.loads(json_string)
-        return self._deserialise_data(data)
+        return self.deserialise_data(data)
 
-    def _serialise_data(self, data: Any) -> Any:
+    def serialise_data(self, data: Any) -> Any:
         if self._is_handled_by_codec(data):
             return self._object_to_codec_dict(data)
         elif self._is_sequence(data):
             new_sequence = []
             for item in data:
-                new_sequence.append(self._serialise_data(item))
+                new_sequence.append(self.serialise_data(item))
             return new_sequence
         elif self._is_mapping(data):
             new_mapping = {}
             for key, value in data.items():
-                new_mapping[key] = self._serialise_data(value)
+                new_mapping[key] = self.serialise_data(value)
             return new_mapping
         elif self._is_simple_type(data):
             return data
         else:
             return self._object_to_dict(data)
 
-    def _deserialise_data(self, data: Any) -> Any:
+    def deserialise_data(self, data: Any) -> Any:
         if self._is_enum_dict(data):
             return self._dict_to_enum(data)
         if self._is_serialised_class(data):
@@ -59,12 +59,12 @@ class Marshall(MarshallProtocol):
         elif self._is_sequence(data):
             new_sequence = []
             for item in data:
-                new_sequence.append(self._deserialise_data(item))
+                new_sequence.append(self.deserialise_data(item))
             return new_sequence
         elif self._is_mapping(data):
             new_mapping = {}
             for key, value in data.items():
-                new_mapping[key] = self._deserialise_data(value)
+                new_mapping[key] = self.deserialise_data(value)
             return immutables.Map(new_mapping)
         else:  # all other simple types now
             return data
@@ -79,14 +79,14 @@ class Marshall(MarshallProtocol):
             json_data = vars(obj)
         for attr, value in json_data.items():
             if not attr.startswith("__"):
-                data[attr] = self._serialise_data(value)
+                data[attr] = self.serialise_data(value)
         return data
 
     def _dict_to_object(self, data: Dict) -> Any:
         kwargs = {}
         for key, value in data.items():
             if not key.startswith("__"):
-                kwargs[key] = self._deserialise_data(value)
+                kwargs[key] = self.deserialise_data(value)
         fully_qualified_name = data["__fcn__"]
         # @TODO add "allowed_namespaces" list to class and do a check here to protect against code injection
         _class = self._get_class_from_fcn(fully_qualified_name)
