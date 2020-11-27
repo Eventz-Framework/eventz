@@ -5,17 +5,17 @@ from eventz.value_object import ValueObject
 
 
 class Message(ValueObject):
-    def __init__(self, msgid: str = None, timestamp: datetime = None):
+    def __init__(self, __msgid__: str = None, __timestamp__: datetime = None):
         try:
-            getattr(self, "version")
+            getattr(self, "__version__")
         except AttributeError:
             err = (
                 "Child classes of Message cannot be instantiated "
-                "without a 'version' attribute set on the class."
+                "without a '__version__' attribute set on the class."
             )
             raise TypeError(err)
-        self.msgid: str = msgid or str(uuid4())
-        self.timestamp: datetime = timestamp or datetime.utcnow()
+        self.__msgid__: str = __msgid__ or str(uuid4())
+        self.__timestamp__: datetime = __timestamp__ or datetime.utcnow()
 
 
 class Event(Message):

@@ -35,7 +35,7 @@ class EventStoreJsonFile(EventStore, EventStoreProtocol):
         if not os.path.isdir(self._storage_path):
             os.mkdir(self._storage_path)
         with open(f"{self._storage_path}/{aggregate_id}.json", "w+") as json_file:
-            json.dump(self._marshall.to_json(events), json_file)
+            json_file.write(self._marshall.to_json(events))
 
     def _get_file_path(self, aggregate_id: str) -> str:
         return f"{self._storage_path}/{aggregate_id}.json"

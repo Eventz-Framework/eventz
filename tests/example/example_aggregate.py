@@ -32,34 +32,34 @@ class ExampleEvent(Event):
 
 
 class ExampleCreated(ExampleEvent):
-    version: int = 1
+    __version__: int = 1
 
     def __init__(
         self,
         example_id: str,
         param_one: int,
         param_two: str,
-        msgid: str = None,
-        timestamp: datetime = None,
+        __msgid__: str = None,
+        __timestamp__: datetime = None,
     ):
-        super().__init__(msgid, timestamp)
+        super().__init__(__msgid__, __timestamp__)
         self.example_id: str = example_id
         self.param_one: int = param_one
         self.param_two: str = param_two
 
 
 class ExampleUpdated(ExampleEvent):
-    version: int = 1
+    __version__: int = 1
 
     def __init__(
         self,
         example_id: str,
         param_one: int,
         param_two: str,
-        msgid: str = None,
-        timestamp: datetime = None,
+        __msgid__: str = None,
+        __timestamp__: datetime = None,
     ):
-        super().__init__(msgid, timestamp)
+        super().__init__(__msgid__, __timestamp__)
         self.example_id: str = example_id
         self.param_one: int = param_one
         self.param_two: str = param_two

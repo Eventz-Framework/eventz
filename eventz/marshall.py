@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import datetime
 import importlib
 import json
@@ -11,7 +13,12 @@ from eventz.protocols import MarshallCodecProtocol, MarshallProtocol
 
 
 class Marshall(MarshallProtocol):
-    def __init__(self, codecs: Dict[str, MarshallCodecProtocol] = None):
+    def __init__(
+        self,
+        fqn_resolver: FqnResolverProtocol,
+        codecs: Dict[str, MarshallCodecProtocol] = None,
+    ):
+        self._fqn_resolver: FqnResolverProtocol = fqn_resolver
         self._codecs = {} if codecs is None else codecs
 
     def register_codec(self, fcn: str, codec: MarshallCodecProtocol):
@@ -25,7 +32,7 @@ class Marshall(MarshallProtocol):
 
     def to_json(self, data: Any) -> str:
         data = self.serialise_data(data)
-        return json.dumps(data, sort_keys=True)
+        return json.dumps(data, sort_keys=True, separators=(",", ":"))
 
     def from_json(self, json_string: str) -> Any:
         data = json.loads(json_string)
@@ -70,9 +77,15 @@ class Marshall(MarshallProtocol):
             return data
 
     def _object_to_dict(self, obj: Any) -> Dict:
-        data = {"__fcn__": self._get_fcn(obj)}
-        if hasattr(obj, "version"):
-            data["__version__"] = obj.version
+        data = {
+            "__fqn__": self._fqn_resolver.instance_to_fqn(obj)
+        }
+        if hasattr(obj, "__version__"):
+            data["__version__"] = obj.__version__
+        if hasattr(obj, "__msgid__"):
+            data["__msgid__"] = obj.__msgid__
+        if hasattr(obj, "__timestamp__"):
+            data["__timestamp__"] = self.serialise_data(obj.__timestamp__)
         if hasattr(obj, "get_json_data") and callable(obj.get_json_data):
             json_data = obj.get_json_data()
         else:
@@ -84,12 +97,15 @@ class Marshall(MarshallProtocol):
 
     def _dict_to_object(self, data: Dict) -> Any:
         kwargs = {}
+        if data.get("__msgid__"):
+            kwargs["__msgid__"] = data.get("__msgid__")
+        if data.get("__timestamp__"):
+            kwargs["__timestamp__"] = self.deserialise_data(data.get("__timestamp__"))
         for key, value in data.items():
             if not key.startswith("__"):
                 kwargs[key] = self.deserialise_data(value)
-        fully_qualified_name = data["__fcn__"]
         # @TODO add "allowed_namespaces" list to class and do a check here to protect against code injection
-        _class = self._get_class_from_fcn(fully_qualified_name)
+        _class = self._fqn_resolver.fqn_to_type(data["__fqn__"])
         return _class(**kwargs)
 
     def _codec_dict_to_object(self, data: Dict) -> Any:
@@ -102,9 +118,8 @@ class Marshall(MarshallProtocol):
                 return codec.serialise(obj)
 
     def _dict_to_enum(self, data: Dict) -> Enum:
-        fully_qualified_name = data["__fcn__"]
         # @TODO add "allowed_namespaces" list to class and do a check here to protect against code injection
-        _class = self._get_class_from_fcn(fully_qualified_name)
+        _class = self._fqn_resolver.fqn_to_type(data["__fqn__"])
         return getattr(_class, data["_name_"])
 
     def _is_handled_by_codec(self, data: Any) -> bool:
@@ -126,17 +141,10 @@ class Marshall(MarshallProtocol):
         return isinstance(data, (datetime.datetime,))
 
     def _is_serialised_class(self, data: Any) -> bool:
-        return isinstance(data, dict) and "__fcn__" in data
+        return isinstance(data, dict) and "__fqn__" in data
 
     def _requires_codec(self, data: Any) -> bool:
         return isinstance(data, dict) and "__codec__" in data
-
-    def _get_fcn(self, obj):
-        return obj.__class__.__module__ + "." + obj.__class__.__name__
-
-    def _get_class_from_fcn(self, fcn: str) -> type:
-        module_name, class_name = fcn.rsplit(".", 1)
-        return getattr(importlib.import_module(module_name), class_name)
 
 
 class NoCodecError(Exception):
@@ -161,3 +169,51 @@ class DatetimeCodec(MarshallCodecProtocol):
 
     def handles(self, obj: Any) -> bool:
         return isinstance(obj, datetime.datetime)
+
+
+class FqnResolverProtocol:
+    def fqn_to_type(self, fqn: str) -> type:
+        ...
+
+    def instance_to_fqn(self, instance: Any) -> str:
+        ...
+
+
+class FqnResolver(FqnResolverProtocol):
+    def __init__(self, fqn_map: Dict):
+        """
+        The "public" side of the map is the fqn written into the JSON payloads.
+        The "private" side of the map is whatever path is needed to help the
+        client code transform the fqn into an instance.
+        """
+        self._public_to_private: Dict = fqn_map
+        self._private_to_public: Dict = {b: a for a, b in fqn_map.items()}
+
+    def fqn_to_type(self, fqn: str) -> type:
+        module_path = self._get_fqn(fqn, public=True)
+        module_name, class_name = module_path.rsplit(".", 1)
+        return getattr(importlib.import_module(module_name), class_name)
+
+    def instance_to_fqn(self, instance: Any) -> str:
+        path = instance.__class__.__module__ + "." + instance.__class__.__name__
+        return self._get_fqn(path, public=False)
+
+    def _get_fqn(self, key: str, public: bool) -> str:
+        try:
+            return self._lookup_fqn(key, public)
+        except KeyError as e:
+            # can we resolve with * path?
+            if key[-1] != "*" and "." in key:
+                parts = key.split(".")
+                entity = parts.pop()
+                star_key = ".".join(parts + ["*"])
+                path = self._lookup_fqn(star_key, public)
+                path_without_star = path[:-1]
+                return path_without_star + entity
+            raise e
+
+    def _lookup_fqn(self, key: str, public: bool) -> str:
+        if public:
+            return self._public_to_private[key]
+        else:
+            return self._private_to_public[key]

@@ -8,11 +8,11 @@ class NoVersion(Event):
 
 
 class Example(Event):
-    version: int = 1
+    __version__: int = 1
 
 
 def test_a_message_must_always_have_a_schema_version_set_on_the_class():
     with pytest.raises(TypeError):
         assert NoVersion()
     example_event_message = Example()
-    assert example_event_message.version == 1
+    assert example_event_message.__version__ == 1
