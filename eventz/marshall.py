@@ -7,7 +7,6 @@ from enum import Enum
 from typing import Any, Dict
 
 import immutables
-from dateutil.parser import parse
 
 from eventz.protocols import MarshallCodecProtocol, MarshallProtocol
 
@@ -149,26 +148,6 @@ class Marshall(MarshallProtocol):
 
 class NoCodecError(Exception):
     pass
-
-
-class DatetimeCodec(MarshallCodecProtocol):
-    def serialise(self, obj: Any) -> Dict:
-        if not isinstance(obj, datetime.datetime):
-            err = (
-                "Only objects of type 'datetime.datetime' "
-                "can be handled by DatetimeHandler codec."
-            )
-            raise TypeError(err)
-        return {
-            "__codec__": "eventz.marshall.DatetimeCodec",
-            "params": {"timestamp": obj.isoformat()},
-        }
-
-    def deserialise(self, params: Dict) -> Any:
-        return parse(params["timestamp"])
-
-    def handles(self, obj: Any) -> bool:
-        return isinstance(obj, datetime.datetime)
 
 
 class FqnResolverProtocol:

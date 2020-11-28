@@ -7,7 +7,8 @@ import pytest
 
 from eventz.entity import Entity
 from eventz.event_store_json_file import EventStoreJsonFile
-from eventz.marshall import Marshall, DatetimeCodec, FqnResolver
+from eventz.marshall import Marshall, FqnResolver
+from eventz.codecs.datetime import Datetime
 from tests.example.child import Child
 from tests.example.children import Children
 from tests.example.parent import ParentCreated, ChildChosen
@@ -28,7 +29,7 @@ marshall = Marshall(
             "tests.ChildChosen": "tests.example.parent.ChildChosen",
         }
     ),
-    codecs={"eventz.marshall.DatetimeCodec": DatetimeCodec()},
+    codecs={"codecs.eventz.Datetime": Datetime()},
 )
 
 
@@ -63,14 +64,14 @@ def test_new_sequence_of_events_can_be_persisted(
     with open(f"{storage_path}/{parent_id1}.json", "r+") as json_file:
         assert json_file.read() == (
             '[{"__fqn__":"tests.ParentCreated","__msgid__":"11111111-1111-1111-1111-111111111111",'
-            '"__timestamp__":{"__codec__":"eventz.marshall.DatetimeCodec","params":'
+            '"__timestamp__":{"__codec__":"codecs.eventz.Datetime","params":'
             '{"timestamp":"2020-01-02T03:04:05.123456"}},"__version__":1,"children":'
             '{"__fqn__":"tests.Children","items":[{"__fqn__":"tests.Child","name":"Child '
             'One"},{"__fqn__":"tests.Child","name":"Child '
             'Two"},{"__fqn__":"tests.Child","name":"Child Three"}],"name":"Group '
             f'One"}},"parent_id":"{parent_id1}"}},'
             '{"__fqn__":"tests.ChildChosen","__msgid__":"22222222-2222-2222-2222-222222222222",'
-            '"__timestamp__":{"__codec__":"eventz.marshall.DatetimeCodec","params":'
+            '"__timestamp__":{"__codec__":"codecs.eventz.Datetime","params":'
             '{"timestamp":"2020-01-02T03:04:06.123456"}},"__version__":1,'
             '"child":{"__fqn__":"tests.Child","name":"Child '
             f'Three"}},"parent_id":"{parent_id1}"}}]'
@@ -112,7 +113,7 @@ def json_events():
             "__version__": 1,
             "__msgid__": msgid1,
             "__timestamp__": {
-                "__codec__": "eventz.marshall.DatetimeCodec",
+                "__codec__": "codecs.eventz.Datetime",
                 "params": {"timestamp": dt_iso1},
             },
             "parent_id": parent_id1,
@@ -131,7 +132,7 @@ def json_events():
             "__version__": 1,
             "__msgid__": msgid2,
             "__timestamp__": {
-                "__codec__": "eventz.marshall.DatetimeCodec",
+                "__codec__": "codecs.eventz.Datetime",
                 "params": {"timestamp": dt_iso2},
             },
             "parent_id": parent_id1,

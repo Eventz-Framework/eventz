@@ -6,7 +6,8 @@ from typing import List, Dict
 import immutables
 import pytest
 
-from eventz.marshall import Marshall, DatetimeCodec, FqnResolver
+from eventz.marshall import Marshall, FqnResolver
+from eventz.codecs.datetime import Datetime
 from eventz.value_object import ValueObject
 
 
@@ -182,13 +183,13 @@ def test_entity_with_custom_datetime_codec_serialised_to_json():
     entity_name = "Entity One"
     dt1 = datetime(2020, 1, 2, 3, 4, 5, 123456)
     entity1 = CustomTypeEntity(name=entity_name, timestamp=dt1)
-    marshall.register_codec(fcn="eventz.marshall.DatetimeCodec", codec=DatetimeCodec())
+    marshall.register_codec(fcn="codecs.eventz.Datetime", codec=Datetime())
     assert marshall.to_json(entity1) == (
         "{"
         '"__fqn__":"tests.CustomTypeEntity",'
         '"name":"Entity One",'
         '"timestamp":{'
-        '"__codec__":"eventz.marshall.DatetimeCodec",'
+        '"__codec__":"codecs.eventz.Datetime",'
         '"params":{"timestamp":"2020-01-02T03:04:05.123456"}'
         "}"
         "}"
@@ -199,7 +200,7 @@ def test_custom_datetime_codec_raises_error_with_wrong_type():
     entity1 = CustomTypeEntity(
         name="Entity One", timestamp="2020-01-02T03:04:05.123456"
     )
-    codec = DatetimeCodec()
+    codec = Datetime()
     with pytest.raises(TypeError):
         codec.serialise(entity1)
 
@@ -212,12 +213,12 @@ def test_entity_with_custom_datetime_codec_deserialised_from_json():
         '"__fqn__":"tests.CustomTypeEntity",'
         '"name":"Entity One",'
         '"timestamp":{'
-        '"__codec__":"eventz.marshall.DatetimeCodec",'
+        '"__codec__":"codecs.eventz.Datetime",'
         '"params":{"timestamp":"2020-01-02T03:04:05.123456"}'
         "}"
         "}"
     )
-    marshall.register_codec(fcn="eventz.marshall.DatetimeCodec", codec=DatetimeCodec())
+    marshall.register_codec(fcn="codecs.eventz.Datetime", codec=Datetime())
     assert marshall.from_json(json_string) == CustomTypeEntity(
         name=entity_name, timestamp=dt1
     )
@@ -274,8 +275,8 @@ def test_enum_from_json():
 
 
 def test_code_deregistration():
-    fcn = "eventz.marshall.DatetimeCodec"
-    marshall.register_codec(fcn=fcn, codec=DatetimeCodec())
+    fcn = "codecs.eventz.Datetime"
+    marshall.register_codec(fcn=fcn, codec=Datetime())
     assert marshall.has_codec(fcn) is True
     marshall.deregister_codec(fcn)
     assert marshall.has_codec(fcn) is False
