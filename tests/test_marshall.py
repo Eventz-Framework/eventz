@@ -1,5 +1,5 @@
 import json
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum
 from typing import List, Dict
 
@@ -180,17 +180,46 @@ def test_complex_object_deserialised_from_json():
 
 
 def test_entity_with_custom_datetime_codec_serialised_to_json():
-    entity_name = "Entity One"
-    dt1 = datetime(2020, 1, 2, 3, 4, 5, 123456)
-    entity1 = CustomTypeEntity(name=entity_name, timestamp=dt1)
     marshall.register_codec(fcn="codecs.eventz.Datetime", codec=Datetime())
+    entity1 = CustomTypeEntity(
+        name="Entity One",
+        timestamp=datetime(2020, 1, 2, 3, 4, 5, 123456)
+    )
     assert marshall.to_json(entity1) == (
         "{"
         '"__fqn__":"tests.CustomTypeEntity",'
         '"name":"Entity One",'
         '"timestamp":{'
         '"__codec__":"codecs.eventz.Datetime",'
-        '"params":{"timestamp":"2020-01-02T03:04:05.123456"}'
+        '"params":{"timestamp":"2020-01-02T03:04:05.123Z"}'
+        "}"
+        "}"
+    )
+    entity2 = CustomTypeEntity(
+        name="Entity Two",
+        timestamp=datetime(2020, 1, 2, 3, 4, 5)
+    )
+    assert marshall.to_json(entity2) == (
+        "{"
+        '"__fqn__":"tests.CustomTypeEntity",'
+        '"name":"Entity Two",'
+        '"timestamp":{'
+        '"__codec__":"codecs.eventz.Datetime",'
+        '"params":{"timestamp":"2020-01-02T03:04:05.000Z"}'
+        "}"
+        "}"
+    )
+    entity3 = CustomTypeEntity(
+        name="Entity Three",
+        timestamp=datetime(2020, 1, 2, 3, 4, 5, tzinfo=timezone.utc)
+    )
+    assert marshall.to_json(entity3) == (
+        "{"
+        '"__fqn__":"tests.CustomTypeEntity",'
+        '"name":"Entity Three",'
+        '"timestamp":{'
+        '"__codec__":"codecs.eventz.Datetime",'
+        '"params":{"timestamp":"2020-01-02T03:04:05.000Z"}'
         "}"
         "}"
     )
@@ -198,7 +227,7 @@ def test_entity_with_custom_datetime_codec_serialised_to_json():
 
 def test_custom_datetime_codec_raises_error_with_wrong_type():
     entity1 = CustomTypeEntity(
-        name="Entity One", timestamp="2020-01-02T03:04:05.123456"
+        name="Entity One", timestamp="2020-01-02T03:04:05.123Z"
     )
     codec = Datetime()
     with pytest.raises(TypeError):
@@ -206,21 +235,20 @@ def test_custom_datetime_codec_raises_error_with_wrong_type():
 
 
 def test_entity_with_custom_datetime_codec_deserialised_from_json():
-    entity_name = "Entity One"
-    dt1 = datetime(2020, 1, 2, 3, 4, 5, 123456)
     json_string = (
         "{"
         '"__fqn__":"tests.CustomTypeEntity",'
         '"name":"Entity One",'
         '"timestamp":{'
         '"__codec__":"codecs.eventz.Datetime",'
-        '"params":{"timestamp":"2020-01-02T03:04:05.123456"}'
+        '"params":{"timestamp":"2020-01-02T03:04:05.123Z"}'
         "}"
         "}"
     )
     marshall.register_codec(fcn="codecs.eventz.Datetime", codec=Datetime())
     assert marshall.from_json(json_string) == CustomTypeEntity(
-        name=entity_name, timestamp=dt1
+        name="Entity One",
+        timestamp=datetime(2020, 1, 2, 3, 4, 5, 123000, tzinfo=timezone.utc)
     )
 
 
