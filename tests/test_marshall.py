@@ -76,7 +76,10 @@ numbers1 = [1, 2, 3, 4, 5]
 numbers2 = [2, 3, 4, 5, 6]
 numbers3 = [3, 4, 5, 6, 7]
 
-resolver = FqnResolver(fqn_map={"tests.*": "tests.test_marshall.*"})
+resolver = FqnResolver(fqn_map={
+    "tests.*": "tests.test_marshall.*",
+    "eventz.packets.*": "eventz.packets.*",
+})
 marshall = Marshall(fqn_resolver=resolver)
 
 
@@ -371,7 +374,19 @@ def test_serialisation_of_packets():
             "two": 2,
         }
     )
-    assert marshall.to_json(packet) == ""
+    assert (
+        '{'
+            '"__fqn__":"eventz.packets.Packet",'
+            '"dialog":"22222222",'
+            '"messageType":"EVENT",'
+            '"msgid":"11111111",'
+            '"options":["aaaaaa","bbbbbb"],'
+            '"payload":{"one":1,"two":2},'
+            '"route":"ExampleService",'
+            '"seq":2,'
+            '"subscribers":["a1b2c3d4"]'
+        '}'
+    ) == marshall.to_json(packet)
 
 
 def _make_mapping_entity(name1, name2):
