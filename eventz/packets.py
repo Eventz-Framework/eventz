@@ -1,3 +1,4 @@
+from __future__ import annotations
 from typing import Tuple, Optional, Union, Dict, Iterable
 
 from eventz.messages import Event
@@ -26,3 +27,6 @@ class Packet(ValueObject):
         self.seq: int = seq
         self.options: Tuple[str] = tuple(options or [])
         self.payload: Optional[Payload] = payload
+
+    def mutate(self, name, value) -> Packet:
+        return self._mutate(name, value)
