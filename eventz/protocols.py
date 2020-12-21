@@ -51,6 +51,12 @@ class MarshallProtocol(Protocol):  # pragma: no cover
     def deregister_codec(self, name: str):
         ...
 
+    def transform_keys_serialisation(self, data) -> Any:
+        ...
+
+    def transform_keys_deserialisation(self, data) -> Any:
+        ...
+
 
 class MarshallCodecProtocol(Protocol):  # pragma: no cover
     def serialise(self, obj: Any) -> Dict:

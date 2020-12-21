@@ -5,9 +5,11 @@ from typing import List, Dict
 
 import immutables
 import pytest
+import stringcase
 
-from eventz.marshall import Marshall, FqnResolver
+from eventz.marshall import Marshall, FqnResolver, transform_keys
 from eventz.codecs.datetime import Datetime
+from eventz.packets import Packet
 from eventz.value_object import ValueObject
 
 
@@ -38,6 +40,13 @@ class CustomTypeEntity(ValueObject):
     ):
         self.name: str = name
         self.timestamp: datetime = timestamp
+
+
+class LongNamedEntity(ValueObject):
+    def __init__(
+        self, one_two_three: str
+    ):
+        self.one_two_three: str = one_two_three
 
 
 class JsonSerialisableEntity(ValueObject):
@@ -302,12 +311,67 @@ def test_enum_from_json():
     assert marshall.from_json(json.dumps(json_data)) == EnumEntity(option=Option.TWO)
 
 
+def test_transformation_of_json_keys():
+    transform_func = getattr(stringcase, "camelcase")
+    assert transform_keys({"one": 1, "two_three": 23}, transform_func) == {
+        "one": 1,
+        "twoThree": 23,
+    }
+    assert transform_keys(
+        {"one": [{"four_five": 45, "six_seven": 67}], "two_three": 23}, transform_func
+    ) == {"one": [{"fourFive": 45, "sixSeven": 67}], "twoThree": 23}
+    assert transform_keys({"__fcn__": "Shouldn't change"}, transform_func) == {
+        "__fcn__": "Shouldn't change"
+    }
+
+
+def test_serialising_to_camel_case():
+    entity = LongNamedEntity(
+        one_two_three="Value",
+    )
+    assert marshall.to_json(entity) == (
+        "{"
+        '"__fqn__":"tests.LongNamedEntity",'
+        '"oneTwoThree":"Value"'
+        "}"
+    )
+
+
+def test_serialising_to_snake_case():
+    json_string =  (
+        "{"
+        '"__fqn__":"tests.LongNamedEntity",'
+        '"oneTwoThree":"Value"'
+        "}"
+    )
+    assert marshall.from_json(json_string) == LongNamedEntity(
+        one_two_three="Value",
+    )
+
+
 def test_code_deregistration():
     fcn = "codecs.eventz.Datetime"
     marshall.register_codec(fcn=fcn, codec=Datetime())
     assert marshall.has_codec(fcn) is True
     marshall.deregister_codec(fcn)
     assert marshall.has_codec(fcn) is False
+
+
+def test_serialisation_of_packets():
+    packet = Packet(
+        subscribers=["a1b2c3d4"],
+        message_type="EVENT",
+        route="ExampleService",
+        msgid="11111111",
+        dialog="22222222",
+        seq=2,
+        options=["aaaaaa", "bbbbbb"],
+        payload={
+            "one": 1,
+            "two": 2,
+        }
+    )
+    assert marshall.to_json(packet) == ""
 
 
 def _make_mapping_entity(name1, name2):

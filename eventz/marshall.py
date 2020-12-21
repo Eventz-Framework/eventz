@@ -5,10 +5,12 @@ import importlib
 import json
 import logging
 import os
+from collections import Mapping
 from enum import Enum
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, Callable
 
 import immutables
+import stringcase
 
 from eventz.protocols import MarshallCodecProtocol, MarshallProtocol
 
@@ -21,9 +23,17 @@ class Marshall(MarshallProtocol):
         self,
         fqn_resolver: FqnResolverProtocol,
         codecs: Dict[str, MarshallCodecProtocol] = None,
+        serialisation_case: Optional[str] = "camelcase",
+        deserialisation_case: Optional[str] = "snakecase",
     ):
         self._fqn_resolver: FqnResolverProtocol = fqn_resolver
         self._codecs = {} if codecs is None else codecs
+        self._serialisation_func: Callable[[str], str] = getattr(
+            stringcase, serialisation_case
+        )
+        self._deserialisation_func: Callable[[str], str] = getattr(
+            stringcase, deserialisation_case
+        )
 
     def register_codec(self, fcn: str, codec: MarshallCodecProtocol):
         self._codecs[fcn] = codec
@@ -36,13 +46,21 @@ class Marshall(MarshallProtocol):
 
     def to_json(self, data: Any) -> str:
         data = self.serialise_data(data)
+        data = self.transform_keys_serialisation(data)
         log.debug(f"Marshall.to_json data={data}")
         return json.dumps(data, sort_keys=True, separators=(",", ":"))
 
     def from_json(self, json_string: str) -> Any:
         data = json.loads(json_string)
+        data = self.transform_keys_deserialisation(data)
         log.debug(f"Marshall.from_json data={data}")
         return self.deserialise_data(data)
+
+    def transform_keys_serialisation(self, data):
+        return transform_keys(data, self._serialisation_func)
+
+    def transform_keys_deserialisation(self, data):
+        return transform_keys(data, self._deserialisation_func)
 
     def serialise_data(self, data: Any) -> Any:
         if self._is_handled_by_codec(data):
@@ -226,3 +244,20 @@ class FqnResolver(FqnResolverProtocol):
             return self._public_to_private[key]
         else:
             return self._private_to_public[key]
+
+
+def transform_keys(input: Any, func: Callable[[str], str]) -> Any:
+    if isinstance(input, dict):
+        new_dict = {}
+        for k, v in input.items():
+            if not k.startswith("__"):
+                k = func(k)
+            new_dict[k] = transform_keys(v, func)
+        return new_dict
+    elif isinstance(input, list):
+        new_list = []
+        for v in input:
+            new_list.append(transform_keys(v, func))
+        return new_list
+    else:
+        return input

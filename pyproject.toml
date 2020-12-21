@@ -8,6 +8,7 @@ authors = ["Dan Ballance <work@danballance.uk>"]
 python = "^3.8"
 immutables = "^0.14"
 python-dateutil = "^2.8.1"
+stringcase = "^1.2.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
