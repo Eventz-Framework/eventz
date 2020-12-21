@@ -248,9 +248,12 @@ class FqnResolver(FqnResolverProtocol):
 
 def transform_keys(input: Any, func: Callable[[str], str]) -> Any:
     if isinstance(input, dict):
+        preserve_keys = "__preserve_keys__" in input and bool(
+            input["__preserve_keys__"]
+        )
         new_dict = {}
         for k, v in input.items():
-            if not k.startswith("__"):
+            if not k.startswith("__") and not preserve_keys:
                 k = func(k)
             new_dict[k] = transform_keys(v, func)
         return new_dict

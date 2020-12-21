@@ -352,6 +352,18 @@ def test_serialising_to_snake_case():
     )
 
 
+def test_mapping_with_preserve_keys_does_not_get_modified():
+    json_string = (
+        "{"
+        '"Key Name":"example",'
+        '"__preserve_keys__":true'
+        "}"
+    )
+    mapping_example = immutables.Map({'__preserve_keys__': True, 'Key Name': 'example'})
+    assert marshall.from_json(json_string) == mapping_example
+    assert marshall.to_json(mapping_example) == json_string
+
+
 def test_code_deregistration():
     fcn = "codecs.eventz.Datetime"
     marshall.register_codec(fcn=fcn, codec=Datetime())
