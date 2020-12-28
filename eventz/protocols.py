@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from typing import Optional, Protocol, TypeVar, Tuple, Any, Dict
+from datetime import datetime
 
 from eventz.messages import Event, Command
 
@@ -82,4 +83,14 @@ class EventStoreProtocol(Protocol):  # pragma: no cover
         ...
 
     def persist(self, aggregate_id: str, events: Events) -> None:
+        ...
+
+
+class SubscriptionRegistryProtocol(Protocol[T]):
+    def register(
+        self, game_id: str, subscription: T, time: Optional[datetime] = None
+    ) -> None:
+        ...
+
+    def fetch(self, game_id: str) -> Tuple[T]:
         ...
