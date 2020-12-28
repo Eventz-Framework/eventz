@@ -1,4 +1,4 @@
-from typing import Dict
+from typing import Dict, Optional
 
 from eventz.protocols import Events, EventStoreProtocol
 
@@ -8,7 +8,7 @@ class DummyStorage(EventStoreProtocol):
         self._persisted_events: Dict[str, Events] = {}
         self._fetch_called: int = 0
 
-    def fetch(self, aggregate_id: str) -> Events:
+    def fetch(self, aggregate_id: str, msgid: Optional[str] = None) -> Events:
         self._fetch_called += 1
         return self._persisted_events[aggregate_id]
 

@@ -1,6 +1,6 @@
 import logging
 import os
-from typing import TypeVar
+from typing import Optional, TypeVar
 
 from eventz.aggregate import Aggregate
 from eventz.protocols import (
@@ -53,3 +53,16 @@ class Repository(RepositoryProtocol[T]):
         log.debug("Persisting to storage ...")
         self._storage.persist(aggregate_id, events)
         log.debug("... events persisted without error.")
+
+    def fetch_all_from(self, aggregate_id: str, msgid: Optional[str] = None) -> Events:
+        """
+        :param aggregate_id:
+        :param msgid: Optional msgid from where in history events should be returned @TODO
+        """
+        log.debug(
+            f"Repository.fetch_all_from with aggregate_id={aggregate_id} and msgid={msgid}"
+        )
+        events = self._storage.fetch(aggregate_id=aggregate_id, msgid=msgid)
+        log.debug(f"Events obtained from storage fetch are:")
+        log.debug(events)
+        return events

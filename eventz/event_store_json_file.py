@@ -1,7 +1,7 @@
 import json
 import os
 import shutil
-from typing import Sequence, Tuple
+from typing import Optional, Sequence, Tuple
 
 from eventz.event_store import EventStore
 from eventz.messages import Event
@@ -23,7 +23,7 @@ class EventStoreJsonFile(EventStore, EventStoreProtocol):
             # toy/example implementation, so don't worry about security
             os.chmod(self._storage_path, 0o777)
 
-    def fetch(self, aggregate_id: str) -> Tuple[Event, ...]:
+    def fetch(self, aggregate_id: str, msgid: Optional[str] = None) -> Tuple[Event, ...]:
         file_path = self._get_file_path(aggregate_id)
         if not os.path.isfile(file_path):
             return ()

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Protocol, TypeVar, Tuple, Any, Dict
+from typing import Optional, Protocol, TypeVar, Tuple, Any, Dict
 
 from eventz.messages import Event, Command
 
@@ -21,6 +21,9 @@ class RepositoryProtocol(Protocol[T]):  # pragma: no cover
         ...
 
     def persist(self, aggregate_id: str, events: Events) -> None:
+        ...
+
+    def fetch_all_from(self, aggregate_id: str, msgid: Optional[str] = None) -> Events:
         ...
 
 
@@ -75,7 +78,7 @@ class JsonSerlialisable(Protocol):  # pragma: no cover
 
 
 class EventStoreProtocol(Protocol):  # pragma: no cover
-    def fetch(self, aggregate_id: str) -> Events:
+    def fetch(self, aggregate_id: str, msgid: Optional[str] = None) -> Events:
         ...
 
     def persist(self, aggregate_id: str, events: Events) -> None:
