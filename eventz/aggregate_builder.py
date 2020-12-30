@@ -10,27 +10,27 @@ from eventz.protocols import AggregateBuilderProtocol, Events
 T = TypeVar("T")
 
 log = logging.getLogger(__name__)
-log.setLevel(os.getenv("LOG_LEVEL", "DEBUG"))
+log.setLevel(os.getenv("LOG_LEVEL", "INFO"))
 
 
 class AggregateBuilder(ABC, AggregateBuilderProtocol):
     def create(self, events: Events) -> T:
-        log.debug("AggregateBuilder.create")
+        log.info("AggregateBuilder.create")
         kwargs = {}
         return self._apply_events(kwargs, events)
 
     def update(self, aggregate: Aggregate, events: Events) -> T:
-        log.debug("AggregateBuilder.update")
+        log.info("AggregateBuilder.update")
         kwargs = vars(aggregate)
         return self._apply_events(kwargs, events)
 
     def _apply_events(self, kwargs: Dict, events: Events) -> T:
-        log.debug(f"AggregateBuilder._apply_events with initial kwargs={kwargs}")
+        log.info(f"AggregateBuilder._apply_events with initial kwargs={kwargs}")
         for event in events:
-            log.debug(f"... Event: {event}")
+            log.info(f"... Event: {event}")
             kwargs = self._apply_event(kwargs, event)
-            log.debug(f"... Updated kwargs: {kwargs}")
-        log.debug("Creating new aggregate with kwargs.")
+            log.info(f"... Updated kwargs: {kwargs}")
+        log.info("Creating new aggregate with kwargs.")
         return self._new_aggregate(kwargs)
 
     @abstractmethod

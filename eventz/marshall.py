@@ -14,7 +14,7 @@ import stringcase
 from eventz.protocols import MarshallCodecProtocol, MarshallProtocol
 
 log = logging.getLogger(__name__)
-log.setLevel(os.getenv("LOG_LEVEL", "DEBUG"))
+log.setLevel(os.getenv("LOG_LEVEL", "INFO"))
 
 
 class Marshall(MarshallProtocol):
@@ -46,17 +46,17 @@ class Marshall(MarshallProtocol):
     def to_json(self, data: Any) -> str:
         data = self.serialise_data(data)
         data = self.transform_keys_serialisation(data)
-        log.debug(f"Marshall.to_json data={data}")
+        log.info(f"Marshall.to_json data={data}")
         result = json.dumps(data, sort_keys=True, separators=(",", ":"))
-        log.debug(f"Marshall.to_json result={result}")
+        log.info(f"Marshall.to_json result={result}")
         return result
 
     def from_json(self, json_string: str) -> Any:
         data = json.loads(json_string)
         data = self.transform_keys_deserialisation(data)
-        log.debug(f"Marshall.from_json data={data}")
+        log.info(f"Marshall.from_json data={data}")
         result = self.deserialise_data(data)
-        log.debug(f"Marshall.from_json result={result}")
+        log.info(f"Marshall.from_json result={result}")
         return result
 
     def transform_keys_serialisation(self, data):
@@ -136,21 +136,21 @@ class Marshall(MarshallProtocol):
         return _class(**kwargs)
 
     def _codec_dict_to_object(self, data: Dict) -> Any:
-        log.trace(f"Marshall._dict_to_object data={data}")
+        log.debug(f"Marshall._dict_to_object data={data}")
         fcn = data["__codec__"]
-        log.trace(f"Codec fcn={fcn}")
+        log.debug(f"Codec fcn={fcn}")
         codec = self._codecs[fcn].deserialise(data["params"])
-        log.trace(f"codec={codec}")
+        log.debug(f"codec={codec}")
         return codec
 
     def _object_to_codec_dict(self, obj: Any) -> Optional[Dict]:
-        log.trace(f"Marshall._object_to_codec_dict obj={obj}")
+        log.debug(f"Marshall._object_to_codec_dict obj={obj}")
         for codec in self._codecs.values():
-            log.trace(f"...codec={codec}")
+            log.debug(f"...codec={codec}")
             if codec.handles(obj):
-                log.trace("... Found codec to handle object.")
+                log.debug("... Found codec to handle object.")
                 dict_ = codec.serialise(obj)
-                log.trace(f"Object serialised to: {dict_}")
+                log.debug(f"Object serialised to: {dict_}")
                 return dict_
 
     def _dict_to_enum(self, data: Dict) -> Enum:
@@ -202,29 +202,29 @@ class FqnResolver(FqnResolverProtocol):
         The "private" side of the map is whatever path is needed to help the
         client code transform the fqn into an instance.
         """
-        log.trace(f"FqnResolver initialised with fqn_map={fqn_map}")
+        log.debug(f"FqnResolver initialised with fqn_map={fqn_map}")
         self._public_to_private: Dict = fqn_map
         self._private_to_public: Dict = {b: a for a, b in fqn_map.items()}
 
     def fqn_to_type(self, fqn: str) -> type:
-        log.trace(f"FqnResolver.fqn_to_type fqn={fqn}")
+        log.debug(f"FqnResolver.fqn_to_type fqn={fqn}")
         module_path = self._get_fqn(fqn, public=True)
-        log.trace(f"module_path={module_path}")
+        log.debug(f"module_path={module_path}")
         module_name, class_name = module_path.rsplit(".", 1)
         type_ = getattr(importlib.import_module(module_name), class_name)
-        log.trace(f"module_path resloved to type={type_}")
+        log.debug(f"module_path resloved to type={type_}")
         return type_
 
     def instance_to_fqn(self, instance: Any) -> str:
-        log.trace(f"FqnResolver.instance_to_fqn instance={instance}")
+        log.debug(f"FqnResolver.instance_to_fqn instance={instance}")
         path = instance.__class__.__module__ + "." + instance.__class__.__name__
-        log.trace(f"path={path}")
+        log.debug(f"path={path}")
         fqn = self._get_fqn(path, public=False)
-        log.trace(f"path rresolved to fqn={fqn}")
+        log.debug(f"path rresolved to fqn={fqn}")
         return fqn
 
     def _get_fqn(self, key: str, public: bool) -> str:
-        log.trace(f"FqnResolver._get_fqn key={key} public={public}")
+        log.debug(f"FqnResolver._get_fqn key={key} public={public}")
         try:
             return self._lookup_fqn(key, public)
         except KeyError as e:
@@ -233,12 +233,12 @@ class FqnResolver(FqnResolverProtocol):
                 parts = key.split(".")
                 entity = parts.pop()
                 star_key = ".".join(parts + ["*"])
-                log.trace(f"entity={entity} star_key={star_key}")
+                log.debug(f"entity={entity} star_key={star_key}")
                 path = self._lookup_fqn(star_key, public)
-                log.trace(f"path={path}")
+                log.debug(f"path={path}")
                 path_without_star = path[:-1]
                 resolved_fqn = path_without_star + entity
-                log.trace(f"resolved_fqn={resolved_fqn}")
+                log.debug(f"resolved_fqn={resolved_fqn}")
                 return resolved_fqn
             raise e
 

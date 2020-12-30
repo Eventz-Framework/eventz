@@ -13,7 +13,7 @@ from eventz.protocols import (
 T = TypeVar("T")
 
 log = logging.getLogger(__name__)
-log.setLevel(os.getenv("LOG_LEVEL", "DEBUG"))
+log.setLevel(os.getenv("LOG_LEVEL", "INFO"))
 
 
 class Repository(RepositoryProtocol[T]):
@@ -28,41 +28,41 @@ class Repository(RepositoryProtocol[T]):
         self._builder: AggregateBuilderProtocol = builder
 
     def create(self, **kwargs) -> Events:
-        log.debug(f"Repository.create with kwargs={kwargs}")
+        log.info(f"Repository.create with kwargs={kwargs}")
         if "uuid" not in kwargs:
             kwargs["uuid"] = Aggregate.make_id()
-            log.debug(f"uuid not found in kwargs. Created as uuid={kwargs['uuid']}")
+            log.info(f"uuid not found in kwargs. Created as uuid={kwargs['uuid']}")
         events = getattr(self._aggregate_class, "create")(**kwargs)
-        log.debug(f"{len(events)} events obtained from {self._aggregate_class}.create are:")
-        log.debug(events)
-        log.debug(f"Persisting events to storage with uuid={kwargs['uuid']} ...")
+        log.info(f"{len(events)} events obtained from {self._aggregate_class}.create are:")
+        log.info(events)
+        log.info(f"Persisting events to storage with uuid={kwargs['uuid']} ...")
         self._storage.persist(kwargs["uuid"], events)
-        log.debug("... events persisted without error.")
+        log.info("... events persisted without error.")
         return events
 
     def read(self, aggregate_id: str) -> T:
-        log.debug(f"Repository.read with aggregate_id={aggregate_id}")
+        log.info(f"Repository.read with aggregate_id={aggregate_id}")
         events = self._storage.fetch(aggregate_id=aggregate_id)
-        log.debug(f"{len(events)} events obtained from storage fetch are:")
-        log.debug(events)
+        log.info(f"{len(events)} events obtained from storage fetch are:")
+        log.info(events)
         return self._builder.create(events)
 
     def persist(self, aggregate_id: str, events: Events) -> None:
-        log.debug(f"Repository.persist with aggregate_id={aggregate_id} and {len(events)} events:")
-        log.debug(events)
-        log.debug("Persisting to storage ...")
+        log.info(f"Repository.persist with aggregate_id={aggregate_id} and {len(events)} events:")
+        log.info(events)
+        log.info("Persisting to storage ...")
         self._storage.persist(aggregate_id, events)
-        log.debug("... events persisted without error.")
+        log.info("... events persisted without error.")
 
     def fetch_all_from(self, aggregate_id: str, msgid: Optional[str] = None) -> Events:
         """
         :param aggregate_id:
         :param msgid: Optional msgid from where in history events should be returned @TODO
         """
-        log.debug(
+        log.info(
             f"Repository.fetch_all_from with aggregate_id={aggregate_id} and msgid={msgid}"
         )
         events = self._storage.fetch(aggregate_id=aggregate_id, msgid=msgid)
-        log.debug(f"{len(events)} events obtained from storage fetch are:")
-        log.debug(events)
+        log.info(f"{len(events)} events obtained from storage fetch are:")
+        log.info(events)
         return events
