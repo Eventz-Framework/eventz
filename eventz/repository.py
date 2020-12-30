@@ -33,7 +33,7 @@ class Repository(RepositoryProtocol[T]):
             kwargs["uuid"] = Aggregate.make_id()
             log.debug(f"uuid not found in kwargs. Created as uuid={kwargs['uuid']}")
         events = getattr(self._aggregate_class, "create")(**kwargs)
-        log.debug(f"Events obtained from {self._aggregate_class}.create are:")
+        log.debug(f"{len(events)} events obtained from {self._aggregate_class}.create are:")
         log.debug(events)
         log.debug(f"Persisting events to storage with uuid={kwargs['uuid']} ...")
         self._storage.persist(kwargs["uuid"], events)
@@ -43,12 +43,12 @@ class Repository(RepositoryProtocol[T]):
     def read(self, aggregate_id: str) -> T:
         log.debug(f"Repository.read with aggregate_id={aggregate_id}")
         events = self._storage.fetch(aggregate_id=aggregate_id)
-        log.debug(f"Events obtained from storage fetch are:")
+        log.debug(f"{len(events)} events obtained from storage fetch are:")
         log.debug(events)
         return self._builder.create(events)
 
     def persist(self, aggregate_id: str, events: Events) -> None:
-        log.debug(f"Repository.persist with aggregate_id={aggregate_id} and events:")
+        log.debug(f"Repository.persist with aggregate_id={aggregate_id} and {len(events)} events:")
         log.debug(events)
         log.debug("Persisting to storage ...")
         self._storage.persist(aggregate_id, events)
@@ -63,6 +63,6 @@ class Repository(RepositoryProtocol[T]):
             f"Repository.fetch_all_from with aggregate_id={aggregate_id} and msgid={msgid}"
         )
         events = self._storage.fetch(aggregate_id=aggregate_id, msgid=msgid)
-        log.debug(f"Events obtained from storage fetch are:")
+        log.debug(f"{len(events)} events obtained from storage fetch are:")
         log.debug(events)
         return events
