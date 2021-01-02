@@ -41,8 +41,9 @@ class ExampleCreated(ExampleEvent):
         param_two: str,
         __msgid__: str = None,
         __timestamp__: datetime = None,
+        __seq__: Optional[int] = None,
     ):
-        super().__init__(__msgid__, __timestamp__)
+        super().__init__(__msgid__, __timestamp__, __seq__)
         self.example_id: str = example_id
         self.param_one: int = param_one
         self.param_two: str = param_two
@@ -58,8 +59,9 @@ class ExampleUpdated(ExampleEvent):
         param_two: str,
         __msgid__: str = None,
         __timestamp__: datetime = None,
+        __seq__: Optional[int] = None,
     ):
-        super().__init__(__msgid__, __timestamp__)
+        super().__init__(__msgid__, __timestamp__, __seq__)
         self.example_id: str = example_id
         self.param_one: int = param_one
         self.param_two: str = param_two

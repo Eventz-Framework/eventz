@@ -21,7 +21,7 @@ class RepositoryProtocol(Protocol[T]):  # pragma: no cover
     def read(self, aggregate_id: str) -> T:
         ...
 
-    def persist(self, aggregate_id: str, events: Events) -> None:
+    def persist(self, aggregate_id: str, events: Events) -> Events:
         ...
 
     def fetch_all_from(self, aggregate_id: str, msgid: Optional[str] = None) -> Events:
@@ -82,7 +82,7 @@ class EventStoreProtocol(Protocol):  # pragma: no cover
     def fetch(self, aggregate_id: str, msgid: Optional[str] = None) -> Events:
         ...
 
-    def persist(self, aggregate_id: str, events: Events) -> None:
+    def persist(self, aggregate_id: str, events: Events) -> Events:
         ...
 
 

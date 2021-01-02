@@ -36,7 +36,7 @@ def test_sequence_of_events_can_be_read(
         json.dump(json_events, json_file)
     # run test and make assertion
     events = store.fetch(parent_id1)
-    assert events == (parent_created_event, child_chosen_event)
+    assert events == (parent_created_event.sequence(1), child_chosen_event.sequence(2))
 
 
 def test_new_sequence_of_events_can_be_persisted(
@@ -47,21 +47,19 @@ def test_new_sequence_of_events_can_be_persisted(
         storage_path=storage_path, marshall=marshall, recreate_storage=True,
     )
     assert store.fetch(parent_id1) == ()
-    store.persist(parent_id1, [parent_created_event, child_chosen_event])
+    store.persist(parent_id1, (parent_created_event, child_chosen_event,))
     with open(f"{storage_path}/{parent_id1}.json", "r+") as json_file:
         assert json_file.read() == (
             '[{"__fqn__":"tests.ParentCreated","__msgid__":"11111111-1111-1111-1111-111111111111",'
-            '"__timestamp__":{"__codec__":"codecs.eventz.Datetime","params":'
+            '"__seq__":1,"__timestamp__":{"__codec__":"codecs.eventz.Datetime","params":'
             '{"timestamp":"2020-01-02T03:04:05.123Z"}},"__version__":1,"children":'
             '{"__fqn__":"tests.Children","items":[{"__fqn__":"tests.Child","name":"Child '
             'One"},{"__fqn__":"tests.Child","name":"Child '
             'Two"},{"__fqn__":"tests.Child","name":"Child Three"}],"name":"Group '
             f'One"}},"parentId":"{parent_id1}"}},'
             '{"__fqn__":"tests.ChildChosen","__msgid__":"22222222-2222-2222-2222-222222222222",'
-            '"__timestamp__":{"__codec__":"codecs.eventz.Datetime","params":'
+            '"__seq__":2,"__timestamp__":{"__codec__":"codecs.eventz.Datetime","params":'
             '{"timestamp":"2020-01-02T03:04:06.123Z"}},"__version__":1,'
             '"child":{"__fqn__":"tests.Child","name":"Child '
             f'Three"}},"parentId":"{parent_id1}"}}]'
         )
-
-

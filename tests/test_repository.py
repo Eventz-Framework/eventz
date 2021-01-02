@@ -11,6 +11,8 @@ def test_create():
         aggregate_class=ExampleAggregate, storage=DummyStorage(), builder=builder,
     )
     events = repository.create(param_one=123, param_two="abc")
+    assert len(events) == 1
+    assert events[0].__seq__ == 1
     example = builder.create(events)
     assert example.param_one == 123
     assert example.param_two == "abc"
@@ -24,4 +26,7 @@ def test_fetch_all_events(parent_created_event, child_chosen_event):
         aggregate_class=ExampleAggregate, storage=storage, builder=builder,
     )
     events = repository.fetch_all_from(aggregate_id=parent_id1)
-    assert events == (parent_created_event, child_chosen_event,)
+    assert len(events) == 2
+    assert events[0].__seq__ == 1
+    assert events[1].__seq__ == 2
+    assert events == (parent_created_event.sequence(1), child_chosen_event.sequence(2),)

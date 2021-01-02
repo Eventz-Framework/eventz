@@ -36,7 +36,7 @@ class Repository(RepositoryProtocol[T]):
         log.info(f"{len(events)} events obtained from {self._aggregate_class}.create are:")
         log.info(events)
         log.info(f"Persisting events to storage with uuid={kwargs['uuid']} ...")
-        self._storage.persist(kwargs["uuid"], events)
+        events = self._storage.persist(kwargs["uuid"], events)
         log.info("... events persisted without error.")
         return events
 
@@ -47,12 +47,13 @@ class Repository(RepositoryProtocol[T]):
         log.info(events)
         return self._builder.create(events)
 
-    def persist(self, aggregate_id: str, events: Events) -> None:
+    def persist(self, aggregate_id: str, events: Events) -> Events:
         log.info(f"Repository.persist with aggregate_id={aggregate_id} and {len(events)} events:")
         log.info(events)
         log.info("Persisting to storage ...")
-        self._storage.persist(aggregate_id, events)
+        events = self._storage.persist(aggregate_id, events)
         log.info("... events persisted without error.")
+        return events
 
     def fetch_all_from(self, aggregate_id: str, msgid: Optional[str] = None) -> Events:
         """

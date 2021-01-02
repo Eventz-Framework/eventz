@@ -1,11 +1,10 @@
-import json
 import os
 import shutil
-from typing import Optional, Sequence, Tuple
+from typing import Optional, Tuple
 
 from eventz.event_store import EventStore
 from eventz.messages import Event
-from eventz.protocols import MarshallProtocol, EventStoreProtocol
+from eventz.protocols import Events, MarshallProtocol, EventStoreProtocol
 
 
 class EventStoreJsonFile(EventStore, EventStoreProtocol):
@@ -31,11 +30,17 @@ class EventStoreJsonFile(EventStore, EventStoreProtocol):
             json_string = json_file.read()
         return tuple(self._marshall.from_json(json_string))
 
-    def persist(self, aggregate_id: str, events: Sequence[Event]):
+    def persist(self, aggregate_id: str, events: Events) -> Events:
         if not os.path.isdir(self._storage_path):
             os.mkdir(self._storage_path)
+        existing_events = self.fetch(aggregate_id)
+        persisted_events = tuple(
+            e.sequence(idx + 1)
+            for idx, e in enumerate(events)
+        )
         with open(f"{self._storage_path}/{aggregate_id}.json", "w+") as json_file:
-            json_file.write(self._marshall.to_json(events))
+            json_file.write(self._marshall.to_json(existing_events + persisted_events))
+        return tuple(persisted_events)
 
     def _get_file_path(self, aggregate_id: str) -> str:
         return f"{self._storage_path}/{aggregate_id}.json"

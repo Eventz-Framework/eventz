@@ -1,11 +1,15 @@
+from __future__ import annotations
 from datetime import datetime
+from typing import Optional, cast
 from uuid import uuid4
 
 from eventz.value_object import ValueObject
 
 
 class Message(ValueObject):
-    def __init__(self, __msgid__: str = None, __timestamp__: datetime = None):
+    def __init__(
+        self, __msgid__: Optional[str] = None, __timestamp__: Optional[datetime] = None
+    ):
         try:
             getattr(self, "__version__")
         except AttributeError:
@@ -19,7 +23,20 @@ class Message(ValueObject):
 
 
 class Event(Message):
-    pass
+    def __init__(
+        self,
+        __msgid__: Optional[str] = None,
+        __timestamp__: Optional[datetime] = None,
+        __seq__: Optional[int] = None,
+    ):
+        super().__init__(__msgid__, __timestamp__)
+        self.__seq__: Optional[int] = __seq__
+
+    def is_persisted(self) -> bool:
+        return self.__seq__ is not None
+
+    def sequence(self, seq) -> Event:
+        return cast(Event, self._mutate("__seq__", seq))
 
 
 class Command(Message):

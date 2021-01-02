@@ -113,6 +113,8 @@ class Marshall(MarshallProtocol):
             data["__msgid__"] = obj.__msgid__
         if hasattr(obj, "__timestamp__"):
             data["__timestamp__"] = self.serialise_data(obj.__timestamp__)
+        if hasattr(obj, "__seq__"):
+            data["__seq__"] = obj.__seq__
         if hasattr(obj, "get_json_data") and callable(obj.get_json_data):
             json_data = obj.get_json_data()
         else:
@@ -128,6 +130,8 @@ class Marshall(MarshallProtocol):
             kwargs["__msgid__"] = data.get("__msgid__")
         if data.get("__timestamp__"):
             kwargs["__timestamp__"] = self.deserialise_data(data.get("__timestamp__"))
+        if data.get("__seq__"):
+            kwargs["__seq__"] = data.get("__seq__")
         for key, value in data.items():
             if not key.startswith("__"):
                 kwargs[key] = self.deserialise_data(value)
