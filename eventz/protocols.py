@@ -27,6 +27,9 @@ class RepositoryProtocol(Protocol[T]):  # pragma: no cover
     def fetch_all_from(self, aggregate_id: str, msgid: Optional[str] = None) -> Events:
         ...
 
+    def get_builder(self) -> AggregateBuilderProtocol:
+        ...
+
 
 class AggregateBuilderProtocol(Protocol[T]):  # pragma: no cover
     def create(self, events: Events) -> T:

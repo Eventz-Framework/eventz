@@ -67,3 +67,6 @@ class Repository(RepositoryProtocol[T]):
         log.info(f"{len(events)} events obtained from storage fetch are:")
         log.info(events)
         return events
+
+    def get_builder(self) -> AggregateBuilderProtocol:
+        return self._builder
