@@ -16,13 +16,13 @@ class ExampleAggregate(Aggregate):
     @classmethod
     def create(cls, uuid: str, param_one: int, param_two: str,) -> Tuple[Event, ...]:
         return (
-            ExampleCreated(example_id=uuid, param_one=param_one, param_two=param_two),
+            ExampleCreated(aggregate_id=uuid, param_one=param_one, param_two=param_two),
         )
 
     def update(self, param_one: int, param_two: str) -> Tuple[Event, ...]:
         return (
             ExampleUpdated(
-                example_id=self.uuid, param_one=param_one, param_two=param_two
+                aggregate_id=self.uuid, param_one=param_one, param_two=param_two
             ),
         )
 
@@ -36,15 +36,14 @@ class ExampleCreated(ExampleEvent):
 
     def __init__(
         self,
-        example_id: str,
+        aggregate_id: str,
         param_one: int,
         param_two: str,
         __msgid__: str = None,
         __timestamp__: datetime = None,
         __seq__: Optional[int] = None,
     ):
-        super().__init__(__msgid__, __timestamp__, __seq__)
-        self.example_id: str = example_id
+        super().__init__(aggregate_id, __msgid__, __timestamp__, __seq__)
         self.param_one: int = param_one
         self.param_two: str = param_two
 
@@ -54,15 +53,14 @@ class ExampleUpdated(ExampleEvent):
 
     def __init__(
         self,
-        example_id: str,
+        aggregate_id: str,
         param_one: int,
         param_two: str,
         __msgid__: str = None,
         __timestamp__: datetime = None,
         __seq__: Optional[int] = None,
     ):
-        super().__init__(__msgid__, __timestamp__, __seq__)
-        self.example_id: str = example_id
+        super().__init__(aggregate_id, __msgid__, __timestamp__, __seq__)
         self.param_one: int = param_one
         self.param_two: str = param_two
 
@@ -72,14 +70,13 @@ class ExampleSnapshot(ExampleEvent):
 
     def __init__(
         self,
-        example_id: str,
+        aggregate_id: str,
         param_one: int,
         param_two: str,
         __msgid__: str = None,
         __timestamp__: datetime = None,
         __seq__: Optional[int] = None,
     ):
-        super().__init__(__msgid__, __timestamp__, __seq__)
-        self.example_id: str = example_id
+        super().__init__(aggregate_id, __msgid__, __timestamp__, __seq__)
         self.param_one: int = param_one
         self.param_two: str = param_two

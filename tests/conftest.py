@@ -19,7 +19,7 @@ dt2 = datetime(2020, 1, 2, 3, 4, 6, 123456)
 @pytest.fixture
 def parent_created_event():
     return ParentCreated(
-        parent_id=parent_id1,
+        aggregate_id=parent_id1,
         children=Children(
             name="Group One",
             items=[
@@ -37,7 +37,7 @@ def parent_created_event():
 @pytest.fixture
 def child_chosen_event():
     return ChildChosen(
-        parent_id=parent_id1,
+        aggregate_id=parent_id1,
         child=Child(name="Child Three"),
         __msgid__=msgid2,
         __timestamp__=dt2,
@@ -57,7 +57,7 @@ def json_events():
                 "params": {"timestamp": dt_iso1},
             },
             "__seq__": 1,
-            "parent_id": parent_id1,
+            "aggregate_id": parent_id1,
             "children": {
                 "__fqn__": "tests.Children",
                 "name": "Group One",
@@ -77,7 +77,7 @@ def json_events():
                 "params": {"timestamp": dt_iso2},
             },
             "__seq__": 2,
-            "parent_id": parent_id1,
+            "aggregate_id": parent_id1,
             "child": {"__fqn__": "tests.Child", "name": "Child Three",},
         },
     ]

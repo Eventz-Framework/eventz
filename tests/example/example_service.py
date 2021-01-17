@@ -18,7 +18,7 @@ class ExampleService(Service):
         example = self._repository.read(aggregate_id=command.aggregate_id)
         snapshot_events = (
             ExampleSnapshot(
-                example_id=example.uuid,
+                aggregate_id=example.uuid,
                 param_one=example.param_one,
                 param_two=example.param_two,
             ),
@@ -31,14 +31,14 @@ class ExampleService(Service):
 
     def _create_example(self, command: CreateExample) -> Tuple[Event, ...]:
         return self._repository.create(
-            uuid=command.example_id,
+            uuid=command.aggregate_id,
             param_one=command.param_one,
             param_two=command.param_two,
         )
 
     def _update_example(self, command: UpdateExample) -> Tuple[Event, ...]:
-        example: ExampleAggregate = self._repository.read(command.example_id)
+        example: ExampleAggregate = self._repository.read(command.aggregate_id)
         events = example.update(
             param_one=command.param_one, param_two=command.param_two
         )
-        return self._repository.persist(aggregate_id=command.example_id, events=events)
+        return self._repository.persist(aggregate_id=command.aggregate_id, events=events)

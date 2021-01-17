@@ -8,7 +8,10 @@ from eventz.value_object import ValueObject
 
 class Message(ValueObject):
     def __init__(
-        self, __msgid__: Optional[str] = None, __timestamp__: Optional[datetime] = None
+        self,
+        aggregate_id: str,
+        __msgid__: Optional[str] = None,
+        __timestamp__: Optional[datetime] = None,
     ):
         try:
             getattr(self, "__version__")
@@ -18,6 +21,7 @@ class Message(ValueObject):
                 "without a '__version__' attribute set on the class."
             )
             raise TypeError(err)
+        self.aggregate_id: str = aggregate_id
         self.__msgid__: str = __msgid__ or str(uuid4())
         self.__timestamp__: datetime = __timestamp__ or datetime.utcnow()
 
@@ -25,11 +29,12 @@ class Message(ValueObject):
 class Event(Message):
     def __init__(
         self,
+        aggregate_id: str,
         __msgid__: Optional[str] = None,
         __timestamp__: Optional[datetime] = None,
         __seq__: Optional[int] = None,
     ):
-        super().__init__(__msgid__, __timestamp__)
+        super().__init__(aggregate_id, __msgid__, __timestamp__)
         self.__seq__: Optional[int] = __seq__
 
     def is_persisted(self) -> bool:
@@ -40,4 +45,7 @@ class Event(Message):
 
 
 class Command(Message):
-    pass
+    def __init__(
+        self, aggregate_id: str, __msgid__: str = None, __timestamp__: datetime = None,
+    ):
+        super().__init__(aggregate_id, __msgid__, __timestamp__)

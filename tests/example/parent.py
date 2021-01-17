@@ -16,14 +16,13 @@ class ParentCreated(Event):
 
     def __init__(
         self,
-        parent_id: str,
+        aggregate_id: str,
         children: Children,
         __msgid__: str = None,
         __timestamp__: datetime = None,
         __seq__: Optional[int] = None,
     ):
-        super().__init__(__msgid__, __timestamp__, __seq__)
-        self.parent_id: str = parent_id
+        super().__init__(aggregate_id, __msgid__, __timestamp__, __seq__)
         self.children: Children = children
 
 
@@ -32,12 +31,11 @@ class ChildChosen(Event):
 
     def __init__(
         self,
-        parent_id: str,
+        aggregate_id: str,
         child: Child,
         __msgid__: str = None,
         __timestamp__: datetime = None,
         __seq__: Optional[int] = None,
     ):
-        super().__init__(__msgid__, __timestamp__, __seq__)
-        self.parent_id: str = parent_id
+        super().__init__(aggregate_id, __msgid__, __timestamp__, __seq__)
         self.child: Child = child

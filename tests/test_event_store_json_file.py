@@ -52,16 +52,18 @@ def test_new_sequence_of_events_can_be_persisted(
         assert json_file.read() == (
             '[{"__fqn__":"tests.ParentCreated","__msgid__":"11111111-1111-1111-1111-111111111111",'
             '"__seq__":1,"__timestamp__":{"__codec__":"codecs.eventz.Datetime","params":'
-            '{"timestamp":"2020-01-02T03:04:05.123Z"}},"__version__":1,"children":'
+            '{"timestamp":"2020-01-02T03:04:05.123Z"}},"__version__":1,'
+            f'"aggregateId":"{parent_id1}","children":'
             '{"__fqn__":"tests.Children","items":[{"__fqn__":"tests.Child","name":"Child '
             'One"},{"__fqn__":"tests.Child","name":"Child '
             'Two"},{"__fqn__":"tests.Child","name":"Child Three"}],"name":"Group '
-            f'One"}},"parentId":"{parent_id1}"}},'
+            'One"}},'
             '{"__fqn__":"tests.ChildChosen","__msgid__":"22222222-2222-2222-2222-222222222222",'
             '"__seq__":2,"__timestamp__":{"__codec__":"codecs.eventz.Datetime","params":'
             '{"timestamp":"2020-01-02T03:04:06.123Z"}},"__version__":1,'
+            f'"aggregateId":"{parent_id1}",'
             '"child":{"__fqn__":"tests.Child","name":"Child '
-            f'Three"}},"parentId":"{parent_id1}"}}]'
+            f'Three"}}}}]'
         )
 
 

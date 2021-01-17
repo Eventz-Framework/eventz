@@ -11,7 +11,7 @@ class ExampleBuilder(AggregateBuilder):
     def _apply_event(self, kwargs: Dict, event: Event) -> Dict:
         if isinstance(event, ExampleCreated):
             return {
-                "uuid": event.example_id,
+                "uuid": event.aggregate_id,
                 "param_one": event.param_one,
                 "param_two": event.param_two,
             }

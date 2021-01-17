@@ -14,8 +14,7 @@ class ReplayCommand(Command):
         __msgid__: str = None,
         __timestamp__: datetime = None,
     ):
-        super().__init__(__msgid__, __timestamp__)
-        self.aggregate_id = aggregate_id
+        super().__init__(aggregate_id, __msgid__, __timestamp__)
         self.from_seq: Optional[int] = from_seq
 
 
@@ -28,5 +27,4 @@ class SnapshotCommand(Command):
         __msgid__: str = None,
         __timestamp__: datetime = None,
     ):
-        super().__init__(__msgid__, __timestamp__)
-        self.aggregate_id = aggregate_id
+        super().__init__(aggregate_id, __msgid__, __timestamp__)

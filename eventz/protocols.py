@@ -91,9 +91,9 @@ class EventStoreProtocol(Protocol):  # pragma: no cover
 
 class SubscriptionRegistryProtocol(Protocol[T]):
     def register(
-        self, game_id: str, subscription: T, time: Optional[datetime] = None
+        self, aggregate_id: str, subscription: T, time: Optional[datetime] = None
     ) -> None:
         ...
 
-    def fetch(self, game_id: str) -> Tuple[T]:
+    def fetch(self, aggregate_id: str) -> Tuple[T]:
         ...
