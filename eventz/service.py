@@ -1,6 +1,8 @@
 from abc import ABC, abstractmethod
+from typing import Tuple
 
-from eventz.messages import Command
+from eventz.commands import ReplayCommand, SnapshotCommand
+from eventz.messages import Command, Event
 from eventz.protocols import ProcessesCommandsProtocol, RepositoryProtocol, Events
 
 
@@ -9,5 +11,22 @@ class Service(ABC, ProcessesCommandsProtocol):
         self._repository: RepositoryProtocol = repository
 
     @abstractmethod
-    def process(self, command: Command) -> Events:
+    def _process_domain_commands(self, command: Command) -> Events:
         raise NotImplementedError  # pragma: no cover
+
+    @abstractmethod
+    def _snapshot_command(self, command: SnapshotCommand) -> Tuple[Event, ...]:
+        raise NotImplementedError  # pragma: no cover
+
+    def process(self, command: Command) -> Tuple[Event, ...]:
+        if isinstance(command, ReplayCommand):
+            return self._replay_command(command)
+        if isinstance(command, SnapshotCommand):
+            return self._snapshot_command(command)
+        return self._process_domain_commands(command)
+
+    def _replay_command(self, command: ReplayCommand) -> Tuple[Event, ...]:
+        return self._repository.fetch_all_from(
+            aggregate_id=command.aggregate_id,
+            seq=command.from_seq,
+        )

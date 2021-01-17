@@ -55,15 +55,15 @@ class Repository(RepositoryProtocol[T]):
         log.info("... events persisted without error.")
         return events
 
-    def fetch_all_from(self, aggregate_id: str, msgid: Optional[str] = None) -> Events:
+    def fetch_all_from(self, aggregate_id: str, seq: Optional[int] = None) -> Events:
         """
         :param aggregate_id:
-        :param msgid: Optional msgid from where in history events should be returned @TODO
+        :param seq: Optional sequence number from where in history events should be returned @TODO
         """
         log.info(
-            f"Repository.fetch_all_from with aggregate_id={aggregate_id} and msgid={msgid}"
+            f"Repository.fetch_all_from with aggregate_id={aggregate_id} and seq={seq}"
         )
-        events = self._storage.fetch(aggregate_id=aggregate_id, msgid=msgid)
+        events = self._storage.fetch(aggregate_id=aggregate_id, seq=seq)
         log.info(f"{len(events)} events obtained from storage fetch are:")
         log.info(events)
         return events

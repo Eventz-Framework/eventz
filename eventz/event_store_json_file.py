@@ -22,13 +22,20 @@ class EventStoreJsonFile(EventStore, EventStoreProtocol):
             # toy/example implementation, so don't worry about security
             os.chmod(self._storage_path, 0o777)
 
-    def fetch(self, aggregate_id: str, msgid: Optional[str] = None) -> Tuple[Event, ...]:
+    def fetch(self, aggregate_id: str, seq: Optional[int] = None) -> Tuple[Event, ...]:
         file_path = self._get_file_path(aggregate_id)
         if not os.path.isfile(file_path):
             return ()
         with open(file_path) as json_file:
             json_string = json_file.read()
-        return tuple(self._marshall.from_json(json_string))
+        slice_idx = self._get_slice_index(seq)
+        return tuple(self._marshall.from_json(json_string)[slice_idx:])
+
+    def _get_slice_index(self, seq: Optional[int]) -> int:
+        slice_index = 0 if seq is None else seq - 1
+        if slice_index < 0:
+            return 0
+        return slice_index
 
     def persist(self, aggregate_id: str, events: Events) -> Events:
         if not os.path.isdir(self._storage_path):

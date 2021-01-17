@@ -24,7 +24,7 @@ class RepositoryProtocol(Protocol[T]):  # pragma: no cover
     def persist(self, aggregate_id: str, events: Events) -> Events:
         ...
 
-    def fetch_all_from(self, aggregate_id: str, msgid: Optional[str] = None) -> Events:
+    def fetch_all_from(self, aggregate_id: str, seq: Optional[int] = None) -> Events:
         ...
 
     def get_builder(self) -> AggregateBuilderProtocol:
@@ -82,7 +82,7 @@ class JsonSerlialisable(Protocol):  # pragma: no cover
 
 
 class EventStoreProtocol(Protocol):  # pragma: no cover
-    def fetch(self, aggregate_id: str, msgid: Optional[str] = None) -> Events:
+    def fetch(self, aggregate_id: str, seq: Optional[int] = None) -> Events:
         ...
 
     def persist(self, aggregate_id: str, events: Events) -> Events:

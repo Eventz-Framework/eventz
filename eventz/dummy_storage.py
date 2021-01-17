@@ -10,9 +10,16 @@ class DummyStorage(EventStoreProtocol):
         self._persisted_events: Dict[str, List[Event]] = defaultdict(list)
         self._fetch_called: int = 0
 
-    def fetch(self, aggregate_id: str, msgid: Optional[str] = None) -> Events:
+    def fetch(self, aggregate_id: str, seq: Optional[int] = None) -> Events:
         self._fetch_called += 1
-        return tuple(self._persisted_events[aggregate_id])
+        slice_idx = self._get_slice_index(seq)
+        return tuple(self._persisted_events[aggregate_id][slice_idx:])
+
+    def _get_slice_index(self, seq: Optional[int]) -> int:
+        slice_index = 0 if seq is None else seq - 1
+        if slice_index < 0:
+            return 0
+        return slice_index
 
     def persist(self, aggregate_id: str, events: Events) -> Events:
         events_to_return = []

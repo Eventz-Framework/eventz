@@ -63,3 +63,22 @@ def test_new_sequence_of_events_can_be_persisted(
             '"child":{"__fqn__":"tests.Child","name":"Child '
             f'Three"}},"parentId":"{parent_id1}"}}]'
         )
+
+
+def test_fetch_sequence_from(
+    json_events, parent_created_event, child_chosen_event
+):
+    # set up the store
+    storage_path = str(Path(__file__).absolute().parent) + "/storage"
+    store = EventStoreJsonFile(
+        storage_path=storage_path, marshall=marshall, recreate_storage=True,
+    )
+    # insert fixture data into the storage
+    if not os.path.isdir(storage_path):
+        os.mkdir(storage_path)
+        os.chmod(storage_path, 0o777)
+    with open(f"{storage_path}/{parent_id1}.json", "w+") as json_file:
+        json.dump(json_events, json_file)
+    # run test and make assertion
+    events = store.fetch(parent_id1, seq=2)
+    assert events == (child_chosen_event.sequence(2),)
