@@ -15,7 +15,7 @@ class Service(ABC, ProcessesCommandsProtocol):
         raise NotImplementedError  # pragma: no cover
 
     @abstractmethod
-    def _snapshot_command(self, command: SnapshotCommand) -> Tuple[Event, ...]:
+    def _snapshot_command(self, command: SnapshotCommand) -> Events:
         raise NotImplementedError  # pragma: no cover
 
     def process(self, command: Command) -> Tuple[Event, ...]:
