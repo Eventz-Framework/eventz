@@ -9,7 +9,7 @@ T = TypeVar("T")
 Events = Tuple[Event, ...]
 
 
-class ProcessesCommandsProtocol(Protocol):  # pragma: no cover
+class ServiceProtocol(Protocol):  # pragma: no cover
     def process(self, command: Command) -> Events:
         ...
 

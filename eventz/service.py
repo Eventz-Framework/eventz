@@ -3,10 +3,10 @@ from typing import Tuple
 
 from eventz.commands import ReplayCommand, SnapshotCommand
 from eventz.messages import Command, Event
-from eventz.protocols import ProcessesCommandsProtocol, RepositoryProtocol, Events
+from eventz.protocols import ServiceProtocol, RepositoryProtocol, Events
 
 
-class Service(ABC, ProcessesCommandsProtocol):
+class Service(ABC, ServiceProtocol):
     def __init__(self, repository: RepositoryProtocol):
         self._repository: RepositoryProtocol = repository
 
