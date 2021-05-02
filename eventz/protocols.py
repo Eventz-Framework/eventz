@@ -13,6 +13,9 @@ class ServiceProtocol(Protocol):  # pragma: no cover
     def process(self, command: Command) -> Events:
         ...
 
+    def transform(self, event: Event) -> Event:
+        ...
+
 
 class RepositoryProtocol(Protocol[T]):  # pragma: no cover
     def create(self, **kwargs) -> Events:

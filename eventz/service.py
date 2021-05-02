@@ -25,6 +25,9 @@ class Service(ABC, ServiceProtocol):
             return self._snapshot_command(command)
         return self._process_domain_commands(command)
 
+    def transform(self, event: Event) -> Event:
+        return event
+
     def _replay_command(self, command: ReplayCommand) -> Tuple[Event, ...]:
         return self._repository.fetch_all_from(
             aggregate_id=command.aggregate_id,
