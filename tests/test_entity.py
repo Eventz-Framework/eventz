@@ -25,7 +25,6 @@ class Model(Entity):
         })
 
 
-
 def test_that_an_entity_generates_a_unique_id_when_created():
     model1 = Model(property_one="A", property_two=1)
     model2 = Model(property_one="A", property_two=1)
