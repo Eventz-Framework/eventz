@@ -149,3 +149,8 @@ class PacketManagerProtocol(Protocol):
 
     def get_done_event_packet(self, event_packets_sent: List[Packet]) -> Packet:
         ...
+
+
+class EventParserProtocol(Protocol[T]):
+    def get_command_packet(self, event: T) -> Packet:
+        ...
