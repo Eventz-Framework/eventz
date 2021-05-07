@@ -8,3 +8,7 @@ class EventValidationError(Exception):
 
 class EventNotMatchedError(Exception):
     pass
+
+
+class ServiceNotFoundError(Exception):
+    pass

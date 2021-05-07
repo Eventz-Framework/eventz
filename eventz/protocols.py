@@ -4,6 +4,7 @@ from typing import Optional, Protocol, TypeVar, Tuple, Any, Dict
 from datetime import datetime
 
 from eventz.messages import Event, Command
+from eventz.packets import Packet
 
 T = TypeVar("T")
 Events = Tuple[Event, ...]
@@ -99,4 +100,12 @@ class SubscriptionRegistryProtocol(Protocol[T]):
         ...
 
     def fetch(self, aggregate_id: str) -> Tuple[T]:
+        ...
+
+
+class ServiceRegistryProtocol(Protocol):
+    def register(self, service_name: str, service: ServiceProtocol) -> None:
+        ...
+
+    def get_service(self, service_name: str) -> ServiceProtocol:
         ...
