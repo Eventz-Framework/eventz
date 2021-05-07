@@ -109,3 +109,36 @@ class ServiceRegistryProtocol(Protocol):
 
     def get_service(self, service_name: str) -> ServiceProtocol:
         ...
+
+
+class PublisherProtocol(Protocol):
+    def publish(self, packet: Packet) -> None:
+        ...
+
+
+class PublisherRegistryProtocol(Protocol):
+    def register(self, publisher_name: str, publisher: PublisherProtocol) -> None:
+        ...
+
+    def get_publishers(self) -> Tuple[PublisherProtocol]:
+        ...
+
+    def get_publisher(self, publisher_name: str) -> PublisherProtocol:
+        ...
+
+    def publish(self, packet: Packet) -> None:
+        ...
+
+
+class PacketManagerProtocol(Protocol):
+    def get_broadcast_command_packet(self) -> Optional[Packet]:
+        ...
+
+    def get_ack_packet(self) -> Packet:
+        ...
+
+    def get_next_event_packet(self, event: Event, event_packets_sent: List[Packet]) -> Packet:
+        ...
+
+    def get_done_event_packet(self, event_packets_sent: List[Packet]) -> Packet:
+        ...
