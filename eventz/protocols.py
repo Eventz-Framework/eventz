@@ -131,13 +131,20 @@ class PublisherRegistryProtocol(Protocol):
 
 
 class PacketManagerProtocol(Protocol):
+    def init_dialog(
+        self, command_packet: Packet, other_subscribers: Tuple[str, ...],
+    ):
+        ...
+
     def get_broadcast_command_packet(self) -> Optional[Packet]:
         ...
 
     def get_ack_packet(self) -> Packet:
         ...
 
-    def get_next_event_packet(self, event: Event, event_packets_sent: List[Packet]) -> Packet:
+    def get_next_event_packet(
+        self, event: Event, event_packets_sent: List[Packet]
+    ) -> Packet:
         ...
 
     def get_done_event_packet(self, event_packets_sent: List[Packet]) -> Packet:
