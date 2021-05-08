@@ -1,8 +1,8 @@
 from __future__ import annotations
 from datetime import datetime
 from typing import Optional, cast
-from uuid import uuid4
 
+from eventz.aggregate import Aggregate
 from eventz.value_object import ValueObject
 
 
@@ -22,7 +22,7 @@ class Message(ValueObject):
             )
             raise TypeError(err)
         self.aggregate_id: str = aggregate_id
-        self.__msgid__: str = __msgid__ or str(uuid4())
+        self.__msgid__: str = __msgid__ or Aggregate.make_id()
         self.__timestamp__: datetime = __timestamp__ or datetime.utcnow()
 
 
