@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Optional, Protocol, TypeVar, Tuple, Any, Dict
+from typing import List, Optional, Protocol, TypeVar, Tuple, Any, Dict
 from datetime import datetime
 
 from eventz.messages import Event, Command
@@ -14,7 +14,7 @@ class ServiceProtocol(Protocol):  # pragma: no cover
     def process(self, command: Command) -> Events:
         ...
 
-    def transform(self, event: Event) -> Event:
+    def domain_command_from_packet(self, command_packet: Packet) -> Command:
         ...
 
 

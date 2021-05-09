@@ -3,6 +3,8 @@ import pytest
 from eventz.aggregate import Aggregate
 from eventz.commands import ReplayCommand, SnapshotCommand
 from eventz.dummy_storage import DummyStorage
+from eventz.marshall import FqnResolver, Marshall
+from eventz.packets import Packet
 from eventz.repository import Repository
 from tests.example.commands import CreateExample, UpdateExample
 from tests.example.example_aggregate import (
@@ -22,13 +24,17 @@ example_updated_event = ExampleUpdated(
 )
 
 
-def xtest_service_processes_create_command():
+def test_service_processes_create_command():
     repository = Repository(
         aggregate_class=ExampleAggregate,
         storage=DummyStorage(),
         builder=ExampleBuilder(),
     )
-    service = ExampleService(repository)
+    resolver = FqnResolver(fqn_map={
+        "commands.eventz.*": "eventz.commands.*",
+    })
+    marshall = Marshall(fqn_resolver=resolver)
+    service = ExampleService(marshall=marshall, repository=repository)
     command = CreateExample(aggregate_id=example_id, param_one=123, param_two="abc")
     events = service.process(command)
     assert len(events) == 1
@@ -50,7 +56,11 @@ def test_service_processes_update_command():
     repository = Repository(
         aggregate_class=ExampleAggregate, storage=storage, builder=builder,
     )
-    service = ExampleService(repository)
+    resolver = FqnResolver(fqn_map={
+        "commands.eventz.*": "eventz.commands.*",
+    })
+    marshall = Marshall(fqn_resolver=resolver)
+    service = ExampleService(marshall=marshall, repository=repository)
     command = UpdateExample(aggregate_id=example_id, param_one=321, param_two="cba")
     events = service.process(command)
     assert len(events) == 1
@@ -88,7 +98,11 @@ def test_service_processes_replay_command(from_seq, expected_events):
     repository = Repository(
         aggregate_class=ExampleAggregate, storage=storage, builder=builder,
     )
-    service = ExampleService(repository)
+    resolver = FqnResolver(fqn_map={
+        "commands.eventz.*": "eventz.commands.*",
+    })
+    marshall = Marshall(fqn_resolver=resolver)
+    service = ExampleService(marshall=marshall, repository=repository)
     command = ReplayCommand(aggregate_id=example_id, from_seq=from_seq)
     assert service.process(command) == expected_events
 
@@ -104,7 +118,11 @@ def test_service_processes_snapshot_command():
     repository = Repository(
         aggregate_class=ExampleAggregate, storage=storage, builder=builder,
     )
-    service = ExampleService(repository)
+    resolver = FqnResolver(fqn_map={
+        "commands.eventz.*": "eventz.commands.*",
+    })
+    marshall = Marshall(fqn_resolver=resolver)
+    service = ExampleService(marshall=marshall, repository=repository)
     command = SnapshotCommand(aggregate_id=example_id)
     events = service.process(command)
     assert len(events) == 1
@@ -113,3 +131,36 @@ def test_service_processes_snapshot_command():
     assert snapshot_event.aggregate_id == example_id
     assert snapshot_event.param_one == 321
     assert snapshot_event.param_two == "cba"
+
+
+def test_domain_command_from_packet():
+    aggregate_id = Aggregate.make_id()
+    dialog_id = Aggregate.make_id()
+    unicast_command_packet = Packet(
+        subscribers=["aaaaaa"],
+        message_type="COMMAND",
+        route="ExampleService",
+        msgid=aggregate_id,
+        dialog=dialog_id,
+        seq=1,
+        options=None,
+        payload={
+            "__fqn__": "commands.eventz.ReplayCommand",
+            "__version__": 1,
+            "__msgid__": "203cea3c-1815-47cd-b2d3-7a7f29854df7",
+            "__timestamp__": "2021-05-03T17:32:44.404Z",
+            "aggregateId": aggregate_id,
+        },
+    )
+    fqn_map = {
+        "commands.eventz.*": "eventz.commands.*",
+    }
+    marshall = Marshall(fqn_resolver=FqnResolver(fqn_map=fqn_map))
+    repository = Repository(
+        aggregate_class=ExampleAggregate,
+        storage=DummyStorage(),
+        builder=ExampleBuilder(),
+    )
+    service = ExampleService(marshall=marshall, repository=repository)
+    domain_command = service.domain_command_from_packet(unicast_command_packet)
+    assert isinstance(domain_command, ReplayCommand)

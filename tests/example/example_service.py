@@ -8,6 +8,12 @@ from tests.example.example_aggregate import ExampleAggregate, ExampleSnapshot
 
 
 class ExampleService(Service):
+    def _get_standard_commands(self) -> Tuple[str, ...]:
+        return (
+            "commands.example.CreateExample",
+            "commands.example.UpdateExample",
+        )
+
     def _process_domain_commands(self, command: Command) -> Tuple[Event, ...]:
         if isinstance(command, CreateExample):
             return self._create_example(command)
