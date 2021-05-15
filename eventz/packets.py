@@ -19,7 +19,7 @@ class Packet(ValueObject):
         options: Optional[Iterable[str]] = None,
         payload: Optional[Payload] = None,
     ):
-        self.subscribers: Tuple[str] = tuple(subscribers)
+        self.subscribers: Tuple[str] = tuple(set(subscribers))
         self.message_type: str = message_type
         self.route: str = route
         self.msgid: str = msgid
