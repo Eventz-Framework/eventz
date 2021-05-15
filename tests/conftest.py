@@ -2,9 +2,21 @@ from datetime import datetime
 
 import pytest
 
+from eventz.dummies.publisher_dummy import PublisherDummy
+from eventz.dummies.subscription_registry_dummy import SubscriptionRegistryDummy
+from eventz.dummy_storage import DummyStorage
 from eventz.entity import Entity
+from eventz.event_broker_synchronous import EventBrokerSynchronous
+from eventz.marshall import FqnResolver, Marshall
+from eventz.packet_manager import PacketManager
+from eventz.publisher_registry import PublisherRegistry
+from eventz.repository import Repository
+from eventz.service_registry import ServiceRegistry
 from tests.example.child import Child
 from tests.example.children import Children
+from tests.example.example_aggregate import ExampleAggregate
+from tests.example.example_builder import ExampleBuilder
+from tests.example.example_service import ExampleService
 from tests.example.parent import ChildChosen, ParentCreated
 
 parent_id1 = Entity.make_id()
@@ -81,3 +93,78 @@ def json_events():
             "child": {"__fqn__": "tests.Child", "name": "Child Three",},
         },
     ]
+
+
+@pytest.fixture()
+def service_registry():
+    return ServiceRegistry()
+
+
+@pytest.fixture()
+def repository_example():
+    return Repository(
+        aggregate_class=ExampleAggregate,
+        storage=DummyStorage(),
+        builder=ExampleBuilder(),
+    )
+
+
+@pytest.fixture()
+def marshall():
+    fqn_map = {
+        "commands.eventz.*": "eventz.commands.*",
+        "commands.example.*": "tests.example.commands.*",
+    }
+    return Marshall(fqn_resolver=FqnResolver(fqn_map=fqn_map))
+
+
+@pytest.fixture()
+def example_service(marshall, repository_example):
+    return ExampleService(marshall=marshall, repository=repository_example)
+
+
+@pytest.fixture()
+def service_registry_example_service(service_registry, example_service):
+    service_registry.register("ExampleService", example_service)
+    return service_registry
+
+
+@pytest.fixture()
+def publisher_registry():
+    return PublisherRegistry()
+
+
+@pytest.fixture()
+def publisher_dummy():
+    return PublisherDummy()
+
+
+@pytest.fixture()
+def publisher_registry_dummy_publisher(publisher_registry, publisher_dummy):
+    publisher_registry.register("Dummy", publisher_dummy)
+    return publisher_registry
+
+
+@pytest.fixture()
+def subscription_registry_dummy():
+    return SubscriptionRegistryDummy()
+
+
+@pytest.fixture()
+def packet_manager():
+    return PacketManager()
+
+
+@pytest.fixture()
+def event_broker_synchronous(
+    service_registry_example_service,
+    publisher_registry_dummy_publisher,
+    subscription_registry_dummy,
+    packet_manager,
+):
+    return EventBrokerSynchronous(
+        service_registry=service_registry_example_service,
+        publisher_registry=publisher_registry_dummy_publisher,
+        subscription_registry=subscription_registry_dummy,
+        packet_manager=packet_manager,
+    )

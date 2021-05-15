@@ -154,3 +154,11 @@ class PacketManagerProtocol(Protocol):
 class EventParserProtocol(Protocol[T]):
     def get_command_packet(self, event: T) -> Packet:
         ...
+
+
+class EventBrokerProtocol(Protocol):
+    def handle(self, command_packet: Packet) -> None:
+        ...
+
+    def get_publisher(self, publisher_name: str) -> PublisherProtocol:
+        ...
