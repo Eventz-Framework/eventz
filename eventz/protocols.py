@@ -99,6 +99,11 @@ class SubscriptionRegistryProtocol(Protocol[T]):
     ) -> None:
         ...
 
+    def deregister(
+        self, subscription: T
+    ) -> None:
+        ...
+
     def fetch(self, aggregate_id: str) -> Tuple[T]:
         ...
 
