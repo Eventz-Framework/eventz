@@ -3,6 +3,7 @@ from typing import Tuple
 
 from eventz.commands import ReplayCommand, SnapshotCommand
 from eventz.errors import CommandValidationError, UnknownCommandError
+from eventz.events import SnapshotEvent
 from eventz.messages import Command, Event
 from eventz.packets import Packet
 from eventz.protocols import MarshallProtocol, ServiceProtocol, RepositoryProtocol, Events
@@ -27,10 +28,6 @@ class Service(ABC, ServiceProtocol):
 
     @abstractmethod
     def _process_domain_commands(self, command: Command) -> Events:
-        raise NotImplementedError  # pragma: no cover
-
-    @abstractmethod
-    def _snapshot_command(self, command: SnapshotCommand) -> Events:
         raise NotImplementedError  # pragma: no cover
 
     def _transform_command_packet(self, command_packet: Packet) -> Command:
@@ -66,4 +63,19 @@ class Service(ABC, ServiceProtocol):
         return self._repository.fetch_all_from(
             aggregate_id=command.aggregate_id,
             seq=command.from_seq,
+        )
+
+    def _snapshot_command(self, command: SnapshotCommand) -> Tuple[Event, ...]:
+        aggregate, seq = self._repository.read(aggregate_id=command.aggregate_id)
+        state = {
+            k: getattr(aggregate, k)
+            for k in vars(aggregate)
+            if (not k.startswith("__") and k != "uuid")
+        }
+        return (
+            SnapshotEvent(
+                aggregate_id=aggregate.uuid,
+                state=state,
+                __seq__=seq,
+            ),
         )

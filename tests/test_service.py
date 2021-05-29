@@ -3,6 +3,7 @@ import pytest
 from eventz.aggregate import Aggregate
 from eventz.commands import ReplayCommand, SnapshotCommand
 from eventz.dummy_storage import DummyStorage
+from eventz.events import SnapshotEvent
 from eventz.marshall import FqnResolver, Marshall
 from eventz.packets import Packet
 from eventz.repository import Repository
@@ -10,7 +11,7 @@ from tests.example.commands import CreateExample, UpdateExample
 from tests.example.example_aggregate import (
     ExampleCreated,
     ExampleAggregate,
-    ExampleSnapshot, ExampleUpdated,
+    ExampleUpdated,
 )
 from tests.example.example_builder import ExampleBuilder
 from tests.example.example_service import ExampleService
@@ -127,10 +128,14 @@ def test_service_processes_snapshot_command():
     events = service.process(command)
     assert len(events) == 1
     snapshot_event = events[0]
-    assert isinstance(snapshot_event, ExampleSnapshot)
+    assert isinstance(snapshot_event, SnapshotEvent)
+    # the __seq__ of the snapshot event should match that of the latest event
+    assert snapshot_event.__seq__ == 2
     assert snapshot_event.aggregate_id == example_id
-    assert snapshot_event.param_one == 321
-    assert snapshot_event.param_two == "cba"
+    assert snapshot_event.state["param_one"] == 321
+    assert snapshot_event.state["param_two"] == "cba"
+    # the snapshot event itself should not be persisted
+    assert len(storage.persisted_events[example_id]) == 2
 
 
 def test_domain_command_from_packet():
