@@ -21,7 +21,7 @@ class ExampleService(Service):
             return self._update_example(command)
 
     def _snapshot_command(self, command: SnapshotCommand) -> Tuple[Event, ...]:
-        example = self._repository.read(aggregate_id=command.aggregate_id)
+        example, seq = self._repository.read(aggregate_id=command.aggregate_id)
         snapshot_events = (
             ExampleSnapshot(
                 aggregate_id=example.uuid,
@@ -43,7 +43,7 @@ class ExampleService(Service):
         )
 
     def _update_example(self, command: UpdateExample) -> Tuple[Event, ...]:
-        example: ExampleAggregate = self._repository.read(command.aggregate_id)
+        example, seq = self._repository.read(command.aggregate_id)
         events = example.update(
             param_one=command.param_one, param_two=command.param_two
         )

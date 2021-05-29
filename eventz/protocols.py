@@ -22,7 +22,7 @@ class RepositoryProtocol(Protocol[T]):  # pragma: no cover
     def create(self, **kwargs) -> Events:
         ...
 
-    def read(self, aggregate_id: str) -> T:
+    def read(self, aggregate_id: str) -> Tuple[T, int]:
         ...
 
     def persist(self, aggregate_id: str, events: Events) -> Events:

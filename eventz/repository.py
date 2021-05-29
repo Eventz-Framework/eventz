@@ -1,6 +1,6 @@
 import logging
 import os
-from typing import Optional, TypeVar
+from typing import Optional, Tuple, TypeVar
 
 from eventz.aggregate import Aggregate
 from eventz.protocols import (
@@ -40,12 +40,16 @@ class Repository(RepositoryProtocol[T]):
         log.info("... events persisted without error.")
         return events
 
-    def read(self, aggregate_id: str) -> T:
+    def read(self, aggregate_id: str) -> Tuple[T, int]:
+        """
+        Returns a Tuple consisting of the latest build of the aggregate and the
+        __seq__ of the last event (i.e. the __seq__ of the aggregate snapshot)
+        """
         log.info(f"Repository.read with aggregate_id={aggregate_id}")
         events = self._storage.fetch(aggregate_id=aggregate_id)
         log.info(f"{len(events)} events obtained from storage fetch are:")
         log.info(events)
-        return self._builder.create(events)
+        return self._builder.create(events), events[-1].__seq__
 
     def persist(self, aggregate_id: str, events: Events) -> Events:
         log.info(f"Repository.persist with aggregate_id={aggregate_id} and {len(events)} events:")
