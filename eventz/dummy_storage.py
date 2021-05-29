@@ -7,13 +7,13 @@ from eventz.protocols import Events, EventStoreProtocol
 
 class DummyStorage(EventStoreProtocol):
     def __init__(self):
-        self._persisted_events: Dict[str, List[Event]] = defaultdict(list)
+        self.persisted_events: Dict[str, List[Event]] = defaultdict(list)
         self._fetch_called: int = 0
 
     def fetch(self, aggregate_id: str, seq: Optional[int] = None) -> Events:
         self._fetch_called += 1
         slice_idx = self._get_slice_index(seq)
-        return tuple(self._persisted_events[aggregate_id][slice_idx:])
+        return tuple(self.persisted_events[aggregate_id][slice_idx:])
 
     def _get_slice_index(self, seq: Optional[int]) -> int:
         slice_index = 0 if seq is None else seq - 1
@@ -24,10 +24,10 @@ class DummyStorage(EventStoreProtocol):
     def persist(self, aggregate_id: str, events: Events) -> Events:
         events_to_return = []
         for event in events:
-            seq = len(self._persisted_events[aggregate_id]) + 1
+            seq = len(self.persisted_events[aggregate_id]) + 1
             persisted_event = event.sequence(seq)
             events_to_return.append(persisted_event)
-            self._persisted_events[aggregate_id].append(persisted_event)
+            self.persisted_events[aggregate_id].append(persisted_event)
         return tuple(events_to_return)
 
     @property
