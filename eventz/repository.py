@@ -49,7 +49,12 @@ class Repository(RepositoryProtocol[T]):
         events = self._storage.fetch(aggregate_id=aggregate_id)
         log.info(f"{len(events)} events obtained from storage fetch are:")
         log.info(events)
-        return self._builder.create(events), events[-1].__seq__
+        return self._builder.create(events), self._get_highest_sequence(events)
+
+    def _get_highest_sequence(self, events: Events) -> int:
+        if len(events) == 0:
+            return 0
+        return events[-1].__seq__
 
     def persist(self, aggregate_id: str, events: Events) -> Events:
         log.info(f"Repository.persist with aggregate_id={aggregate_id} and {len(events)} events:")
