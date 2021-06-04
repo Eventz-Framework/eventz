@@ -70,10 +70,10 @@ class MarshallProtocol(Protocol):  # pragma: no cover
 
 
 class MarshallCodecProtocol(Protocol):  # pragma: no cover
-    def serialise(self, obj: Any) -> Dict:
+    def serialise(self, obj: Any, marshall: MarshallProtocol) -> Dict:
         ...
 
-    def deserialise(self, params: Dict) -> Any:
+    def deserialise(self, params: Dict, marshall: MarshallProtocol) -> Any:
         ...
 
     def handles(self, obj: Any) -> bool:

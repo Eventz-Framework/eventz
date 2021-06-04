@@ -3,11 +3,11 @@ from typing import Any, Dict
 
 from dateutil.parser import parse
 
-from eventz.protocols import MarshallCodecProtocol
+from eventz.protocols import MarshallCodecProtocol, MarshallProtocol
 
 
 class Datetime(MarshallCodecProtocol):
-    def serialise(self, obj: Any) -> Dict:
+    def serialise(self, obj: Any, marshall: MarshallProtocol) -> Dict:
         if not isinstance(obj, datetime):
             err = (
                 "Only objects of type 'datetime.datetime' "
@@ -19,7 +19,7 @@ class Datetime(MarshallCodecProtocol):
             "params": {"timestamp": self._iso_js_format(obj)},
         }
 
-    def deserialise(self, params: Dict) -> Any:
+    def deserialise(self, params: Dict, marshall: MarshallProtocol) -> Any:
         return parse(params["timestamp"])
 
     def handles(self, obj: Any) -> bool:

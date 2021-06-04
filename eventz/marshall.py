@@ -143,7 +143,7 @@ class Marshall(MarshallProtocol):
         log.debug(f"Marshall._dict_to_object data={data}")
         fcn = data["__codec__"]
         log.debug(f"Codec fcn={fcn}")
-        codec = self._codecs[fcn].deserialise(data["params"])
+        codec = self._codecs[fcn].deserialise(data["params"], self)
         log.debug(f"codec={codec}")
         return codec
 
@@ -153,7 +153,7 @@ class Marshall(MarshallProtocol):
             log.debug(f"...codec={codec}")
             if codec.handles(obj):
                 log.debug("... Found codec to handle object.")
-                dict_ = codec.serialise(obj)
+                dict_ = codec.serialise(obj, self)
                 log.debug(f"Object serialised to: {dict_}")
                 return dict_
 
