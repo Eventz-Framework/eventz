@@ -134,6 +134,7 @@ def test_service_processes_snapshot_command():
     assert snapshot_event.aggregate_id == example_id
     assert snapshot_event.state["param_one"] == 321
     assert snapshot_event.state["param_two"] == "cba"
+    assert snapshot_event.order == ["param_one", "param_two"]
     # the snapshot event itself should not be persisted
     assert len(storage.persisted_events[example_id]) == 2
 

@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Tuple
+from typing import Dict, List, Tuple
 
 from eventz.commands import ReplayCommand, SnapshotCommand
 from eventz.errors import CommandValidationError, UnknownCommandError
@@ -67,15 +67,32 @@ class Service(ABC, ServiceProtocol):
 
     def _snapshot_command(self, command: SnapshotCommand) -> Tuple[Event, ...]:
         aggregate, seq = self._repository.read(aggregate_id=command.aggregate_id)
-        state = {
-            k: getattr(aggregate, k)
-            for k in vars(aggregate)
-            if (not k.startswith("__") and k != "uuid")
-        }
         return (
             SnapshotEvent(
                 aggregate_id=aggregate.uuid,
-                state=state,
+                state=self._make_snapshot_state(aggregate),
+                order=self._make_snapshot_order(aggregate),
                 __seq__=seq,
             ),
         )
+
+    def _make_snapshot_state(self, aggregate) -> Dict:
+        """
+        Override this method to control exactly how the snapshot state is built
+        """
+        return {
+            k: getattr(aggregate, k)
+            for k in self._get_state_params(aggregate)
+        }
+
+    def _make_snapshot_order(self, aggregate) -> List[str]:
+        """
+        Override this method to control the sequence in which
+        the snapshot state should be applied
+        """
+        return self._get_state_params(aggregate)
+
+    def _get_state_params(self, aggregate) -> List[str]:
+        return [
+            k for k in vars(aggregate).keys() if (not k.startswith("__") and k != "uuid")
+        ]

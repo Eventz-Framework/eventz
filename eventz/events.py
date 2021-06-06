@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional
 
 from eventz.messages import Event
 
@@ -11,9 +11,11 @@ class SnapshotEvent(Event):
         self,
         aggregate_id: str,
         state: Dict[str, Any],
+        order: List[str],
         __msgid__: str = None,
         __timestamp__: datetime = None,
         __seq__: Optional[int] = None,
     ):
         super().__init__(aggregate_id, __msgid__, __timestamp__, __seq__)
         self.state: Dict[str, Any] = state
+        self.order: List[str] = order
