@@ -31,7 +31,6 @@ class PacketManager(PacketManagerProtocol):
                 msgid=self._command_packet.msgid,
                 dialog=self._command_packet.dialog,
                 seq=1,
-                options=None,
                 payload=self._command_packet.payload,
             )
         return None
@@ -44,7 +43,6 @@ class PacketManager(PacketManagerProtocol):
             msgid=Aggregate.make_id(),
             dialog=self._command_packet.dialog,
             seq=2,
-            options=None,
             payload=None,
         )
 
@@ -56,7 +54,6 @@ class PacketManager(PacketManagerProtocol):
             msgid=Aggregate.make_id(),
             dialog=self._command_packet.dialog,
             seq=len(event_packets_sent) + 3,
-            options=None,
             payload=event,
         )
 
@@ -68,7 +65,6 @@ class PacketManager(PacketManagerProtocol):
             msgid=Aggregate.make_id(),
             dialog=self._command_packet.dialog,
             seq=len(event_packets_sent) + 3,
-            options=None,
             payload=tuple(e.msgid for e in event_packets_sent),
         )
 

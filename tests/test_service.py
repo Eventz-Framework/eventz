@@ -149,7 +149,6 @@ def test_domain_command_from_packet():
         msgid=aggregate_id,
         dialog=dialog_id,
         seq=1,
-        options=None,
         payload={
             "__fqn__": "commands.eventz.ReplayCommand",
             "__version__": 1,

@@ -1,8 +1,10 @@
 from datetime import datetime
 from typing import Optional, Tuple
 
+import immutables
+
 from eventz.aggregate import Aggregate
-from eventz.messages import Event
+from eventz.messages import Event, RoleOptions
 
 
 class ExampleAggregate(Aggregate):
@@ -39,11 +41,12 @@ class ExampleCreated(ExampleEvent):
         aggregate_id: str,
         param_one: int,
         param_two: str,
-        __msgid__: str = None,
-        __timestamp__: datetime = None,
-        __seq__: Optional[int] = None,
+        __options__: Optional[immutables.Map[str, RoleOptions]] = None,
+        __msgid__: Optional[str] = None,
+        __timestamp__: Optional[datetime] = None,
+        __seq__: Optional[Optional[int]] = None,
     ):
-        super().__init__(aggregate_id, __msgid__, __timestamp__, __seq__)
+        super().__init__(aggregate_id, __options__, __msgid__, __timestamp__, __seq__)
         self.param_one: int = param_one
         self.param_two: str = param_two
 
@@ -56,10 +59,11 @@ class ExampleUpdated(ExampleEvent):
         aggregate_id: str,
         param_one: int,
         param_two: str,
-        __msgid__: str = None,
-        __timestamp__: datetime = None,
+        __options__: Optional[immutables.Map[str, RoleOptions]] = None,
+        __msgid__: Optional[str] = None,
+        __timestamp__: Optional[datetime] = None,
         __seq__: Optional[int] = None,
     ):
-        super().__init__(aggregate_id, __msgid__, __timestamp__, __seq__)
+        super().__init__(aggregate_id, __options__, __msgid__, __timestamp__, __seq__)
         self.param_one: int = param_one
         self.param_two: str = param_two

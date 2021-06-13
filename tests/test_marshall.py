@@ -380,7 +380,6 @@ def test_serialisation_of_packets():
         msgid="11111111",
         dialog="22222222",
         seq=2,
-        options=["aaaaaa", "bbbbbb"],
         payload={
             "one": 1,
             "two": 2,
@@ -392,7 +391,6 @@ def test_serialisation_of_packets():
             '"dialog":"22222222",'
             '"messageType":"EVENT",'
             '"msgid":"11111111",'
-            '"options":["aaaaaa","bbbbbb"],'
             '"payload":{"one":1,"two":2},'
             '"route":"ExampleService",'
             '"seq":2,'

@@ -16,7 +16,6 @@ broadcast_command_packet = Packet(
     msgid=command_msgid,
     dialog=dialog_id,
     seq=1,
-    options=None,
     payload={
         "__fqn__": "commands.example.CreateExample",
         "__version__": 1,
@@ -34,7 +33,6 @@ unicast_command_packet = Packet(
     msgid=command_msgid,
     dialog=dialog_id,
     seq=1,
-    options=None,
     payload={
         "__fqn__": "commands.eventz.ReplayCommand",
         "__version__": 1,
@@ -64,7 +62,6 @@ def test_get_broadcast_command_packet():
         msgid=command_msgid,
         dialog=dialog_id,
         seq=1,
-        options=None,
         payload={
             "__fqn__": "commands.example.CreateExample",
             "__version__": 1,
@@ -93,7 +90,6 @@ def test_get_ack_packet(mock_uuid4):
         msgid=new_msg_id,
         dialog=dialog_id,
         seq=2,
-        options=None,
         payload=None,
     )
 
@@ -114,7 +110,6 @@ def test_get_next_event_packet(mock_uuid4):
         msgid=Aggregate.make_id(),
         dialog=dialog_id,
         seq=3,
-        options=None,
         payload=ExampleCreated(
             aggregate_id=command_msgid, param_one=123, param_two="abc"
         ),
@@ -126,7 +121,6 @@ def test_get_next_event_packet(mock_uuid4):
         msgid=Aggregate.make_id(),
         dialog=dialog_id,
         seq=4,
-        options=None,
         payload=ExampleUpdated(
             aggregate_id=command_msgid, param_one=321, param_two="cba"
         ),
@@ -145,7 +139,6 @@ def test_get_next_event_packet(mock_uuid4):
         msgid=new_msg_id,
         dialog=dialog_id,
         seq=5,
-        options=None,
         payload=next_event,
     )
 
@@ -167,7 +160,6 @@ def test_get_done_event_packet(mock_uuid4):
         msgid=event_msgid,
         dialog=dialog_id,
         seq=3,
-        options=None,
         payload=ExampleCreated(
             aggregate_id=command_msgid, param_one=123, param_two="abc"
         ),
@@ -181,6 +173,5 @@ def test_get_done_event_packet(mock_uuid4):
         msgid=new_msg_id,
         dialog=dialog_id,
         seq=4,
-        options=None,
         payload=(event_msgid,),
     )

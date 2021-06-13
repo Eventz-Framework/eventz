@@ -1,7 +1,9 @@
 from datetime import datetime
 from typing import Any, Dict, List, Optional
 
-from eventz.messages import Event
+import immutables
+
+from eventz.messages import Event, RoleOptions
 
 
 class SnapshotEvent(Event):
@@ -12,10 +14,11 @@ class SnapshotEvent(Event):
         aggregate_id: str,
         state: Dict[str, Any],
         order: List[str],
-        __msgid__: str = None,
-        __timestamp__: datetime = None,
+        __options__: Optional[immutables.Map[str, RoleOptions]] = None,
+        __msgid__: Optional[str] = None,
+        __timestamp__: Optional[datetime] = None,
         __seq__: Optional[int] = None,
     ):
-        super().__init__(aggregate_id, __msgid__, __timestamp__, __seq__)
+        super().__init__(aggregate_id, __options__, __msgid__, __timestamp__, __seq__)
         self.state: Dict[str, Any] = state
         self.order: List[str] = order

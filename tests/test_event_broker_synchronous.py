@@ -26,7 +26,6 @@ def test_default_flow_success(mock_uuid4, event_broker_synchronous):
         msgid=msgid1,
         dialog=dialog_id,
         seq=1,
-        options=None,
         payload={
             "__fqn__": "commands.example.CreateExample",
             "__version__": 1,
@@ -47,7 +46,6 @@ def test_default_flow_success(mock_uuid4, event_broker_synchronous):
         msgid=msgid2,
         dialog=dialog_id,
         seq=2,
-        options=None,
         payload=None,
     )
     assert publisher_dummy.published_packets[1] == Packet(
@@ -57,7 +55,6 @@ def test_default_flow_success(mock_uuid4, event_broker_synchronous):
         msgid=msgid3,
         dialog=dialog_id,
         seq=3,
-        options=None,
         payload=ExampleCreated(
             aggregate_id=aggregate_id,
             param_one=1,
@@ -73,6 +70,5 @@ def test_default_flow_success(mock_uuid4, event_broker_synchronous):
         msgid=msgid4,
         dialog=dialog_id,
         seq=4,
-        options=None,
         payload=(msgid3,),
     )
